@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {% if product %}Редактирование{% else %}Создание{% endif %} продукта | {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product-list' %}">Продукты</a></li>
+            <li class="breadcrumb-item active">
+                {% if product %}Редактирование{% else %}Создание{% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            {% if product %}
+                                Редактирование продукта
+                            {% else %}
+                                Создание нового продукта
+                            {% endif %}
+                        </h4>
+                        <a href="{% url 'products:product-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Назад к списку
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Изображение -->
+                            <div class="col-12 text-center mb-4">
+                                <div class="product-image-upload">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="Product image" 
+                                             class="img-preview mb-3" 
+                                             style="max-height: 200px;">
+                                    {% else %}
+                                        <div class="img-preview-placeholder mb-3">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div>
+                                        <label for="{{ form.image.id_for_label }}" 
+                                               class="btn btn-outline-primary">
+                                            <i class="fas fa-upload me-1"></i> 
+                                            Загрузить изображение
+                                        </label>
+                                        {% render_field form.image class="d-none" %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                {% include 'components/forms/input_field.html' with field=form.name %}
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'components/forms/input_field.html' with field=form.sku %}
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'components/forms/select_field.html' with field=form.category %}
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'components/forms/input_field.html' with field=form.price %}
+                            </div>
+                            <div class="col-12">
+                                {% include 'components/forms/input_field.html' with field=form.description %}
+                            </div>
+
+                            <div class="col-12">
+                                <hr>
+                                <h6>Характеристики продукта</h6>
+                                <div id="specifications-container">
+                                    {% if product.specifications %}
+                                        {% for key, value in product.specifications.items %}
+                                            <div class="row g-2 mb-2 specification-row">
+                                                <div class="col-5">
+                                                    <input type="text" name="spec_keys[]" 
+                                                           class="form-control" placeholder="Характеристика"
+                                                           value="{{ key }}">
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" name="spec_values[]" 
+                                                           class="form-control" placeholder="Значение"
+                                                           value="{{ value }}">
+                                                </div>
+                                                <div class="col-1">
+                                                    <button type="button" 
+                                                            class="btn btn-outline-danger remove-spec">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <button type="button" id="add-specification" 
+                                        class="btn btn-outline-secondary btn-sm mt-2">
+                                    <i class="fas fa-plus me-1"></i> Добавить характеристику
+                                </button>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            onclick="history.back()">
+                                        Отмена
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i> Сохранить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.createElement('img');
+            preview.src = e.target.result;
+            preview.className = 'img-preview mb-3';
+            preview.style.maxHeight = '200px';
+            
+            const container = document.querySelector('.product-image-upload');
+            const oldPreview = container.querySelector('.img-preview, .img-preview-placeholder');
+            if (oldPreview) {
+                oldPreview.remove();
+            }
+            container.insertBefore(preview, container.firstChild);
+        }
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+
+const specContainer = document.getElementById('specifications-container');
+const addSpecBtn = document.getElementById('add-specification');
+
+function createSpecificationRow() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 mb-2 specification-row';
+    row.innerHTML = `
+        <div class="col-5">
+            <input type="text" name="spec_keys[]" class="form-control" placeholder="Характеристика">
+        </div>
+        <div class="col-6">
+            <input type="text" name="spec_values[]" class="form-control" placeholder="Значение">
+        </div>
+        <div class="col-1">
+            <button type="button" class="btn btn-outline-danger remove-spec">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    return row;
+}
+
+addSpecBtn.addEventListener('click', () => {
+    specContainer.appendChild(createSpecificationRow());
+});
+
+specContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.remove-spec')) {
+        e.target.closest('.specification-row').remove();
+    }
+});
+</script>
+{% endblock %}

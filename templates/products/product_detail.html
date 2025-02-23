@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product-list' %}">Продукты</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" 
+                         alt="{{ product.name }}" style="object-fit: cover; height: 400px;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                         style="height: 400px;">
+                        <i class="fas fa-box fa-5x text-muted"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{{ product.name }}</h4>
+                        {% if user.role == 'admin' %}
+                            <div class="btn-group">
+                                <a href="{% url 'products:product-edit' product.id %}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-1"></i> Редактировать
+                                </a>
+                                <button type="button" class="btn btn-outline-danger"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-1"></i> Удалить
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1"><small class="text-muted">Категория:</small></p>
+                            <p class="h6">{{ product.category.name }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1"><small class="text-muted">Артикул:</small></p>
+                            <p class="h6">{{ product.sku }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1"><small class="text-muted">Цена:</small></p>
+                            <p class="h3">${{ product.price|floatformat:2 }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1"><small class="text-muted">Наличие:</small></p>
+                            <div class="d-flex align-items-center">
+                                <span class="h5 mb-0">{{ product.stock }} шт.</span>
+                                <span class="badge {% if product.stock > 10 %}bg-success{% elif product.stock > 0 %}bg-warning{% else %}bg-danger{% endif %} ms-2">
+                                    {% if product.stock > 10 %}
+                                        В наличии
+                                    {% elif product.stock > 0 %}
+                                        Заканчивается
+                                    {% else %}
+                                        Нет в наличии
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="mb-1"><small class="text-muted">Описание:</small></p>
+                        <p class="mb-0">{{ product.description|linebreaks }}</p>
+                    </div>
+
+                    {% if product.specifications %}
+                        <div>
+                            <p class="mb-2"><small class="text-muted">Характеристики:</small></p>
+                            <table class="table table-sm">
+                                <tbody>
+                                    {% for key, value in product.specifications.items %}
+                                        <tr>
+                                            <td class="text-muted" style="width: 200px;">{{ key }}</td>
+                                            <td>{{ value }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.role == 'admin' %}
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить продукт "{{ product.name }}"?</p>
+                    <p class="text-danger mb-0">Это действие нельзя отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form action="{% url 'products:product-delete' product.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

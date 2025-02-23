@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}
+    {% if order %}Редактирование{% else %}Создание{% endif %} заказа | {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sales:order-list' %}">Заказы</a></li>
+            <li class="breadcrumb-item active">
+                {% if order %}Редактирование{% else %}Создание{% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            {% if order %}
+                                Редактирование заказа #{{ order.id }}
+                            {% else %}
+                                Новый заказ
+                            {% endif %}
+                        </h4>
+                        <a href="{% url 'sales:order-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> К списку
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form method="post" id="orderForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Клиент и менеджер -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                {% include 'components/forms/select_field.html' with field=form.customer %}
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'components/forms/select_field.html' with field=form.sales_rep %}
+                            </div>
+                        </div>
+
+                        <!-- Товары -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-transparent">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Товары</h5>
+                                    <button type="button" class="btn btn-primary btn-sm" 
+                                            onclick="addOrderItem()">
+                                        <i class="fas fa-plus me-1"></i> Добавить товар
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body p-0">
+                                <div id="orderItems">
+                                    {{ formset.management_form }}
+                                    {% for form in formset %}
+                                        <div class="order-item border-bottom p-3">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    {% include 'components/forms/select_field.html' with field=form.product %}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    {% include 'components/forms/input_field.html' with field=form.quantity %}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    {% include 'components/forms/input_field.html' with field=form.price %}
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" 
+                                                            class="btn btn-outline-danger btn-sm mt-4"
+                                                            onclick="removeOrderItem(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {% for hidden in form.hidden_fields %}
+                                                {{ hidden }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="p-3 bg-light">
+                                    <div class="row">
+                                        <div class="col-md-9 text-end">
+                                            <h5>Итого:</h5>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h5 id="totalAmount">$0.00</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Комментарий -->
+                        <div class="mb-4">
+                            {% include 'components/forms/input_field.html' with field=form.notes %}
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" 
+                                    onclick="history.back()">
+                                Отмена
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Шаблон для нового товара -->
+<template id="orderItemTemplate">
+    <div class="order-item border-bottom p-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Товар</label>
+                <select name="items-__prefix__-product" class="form-select product-select">
+                    <option value="">Выберите товар</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}" 
+                                data-price="{{ product.price }}">
+                            {{ product.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Количество</label>
+                <input type="number" name="items-__prefix__-quantity" 
+                       class="form-control quantity-input" min="1" value="1">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Цена</label>
+                <input type="number" name="items-__prefix__-price" 
+                       class="form-control price-input" step="0.01">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-outline-danger btn-sm mt-4"
+                        onclick="removeOrderItem(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let itemsCount = {{ formset.total_form_count }};
+const maxItems = {{ formset.max_num }};
+
+function addOrderItem() {
+    if (itemsCount >= maxItems) {
+        alert('Достигнуто максимальное количество товаров');
+        return;
+    }
+
+    const template = document.getElementById('orderItemTemplate');
+    const container = document.getElementById('orderItems');
+    const clone = template.content.cloneNode(true);
+    
+    clone.querySelectorAll('[name*="__prefix__"]').forEach(element => {
+        element.name = element.name.replace('__prefix__', itemsCount);
+        element.id = element.id.replace('__prefix__', itemsCount);
+    });
+    
+    container.appendChild(clone);
+    itemsCount++;
+    
+    document.getElementById('id_items-TOTAL_FORMS').value = itemsCount;
+    
+    initializeItemHandlers(container.lastElementChild);
+}
+
+function removeOrderItem(button) {
+    if (itemsCount <= 1) {
+        alert('Заказ должен содержать хотя бы один товар');
+        return;
+    }
+    
+    button.closest('.order-item').remove();
+    itemsCount--;
+    document.getElementById('id_items-TOTAL_FORMS').value = itemsCount;
+    calculateTotal();
+}
+
+function initializeItemHandlers(item) {
+    const productSelect = item.querySelector('.product-select');
+    const quantityInput = item.querySelector('.quantity-input');
+    const priceInput = item.querySelector('.price-input');
+    
+    productSelect.addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        if (option.dataset.price) {
+            priceInput.value = option.dataset.price;
+        }
+        calculateTotal();
+    });
+    
+    [quantityInput, priceInput].forEach(input => {
+        input.addEventListener('input', calculateTotal);
+    });
+}
+
+function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.order-item').forEach(item => {
+        const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+        const price = parseFloat(item.querySelector('.price-input').value) || 0;
+        total += quantity * price;
+    });
+    document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+}
+
+document.querySelectorAll('.order-item').forEach(initializeItemHandlers);
+calculateTotal();
+</script>
+{% endblock %}

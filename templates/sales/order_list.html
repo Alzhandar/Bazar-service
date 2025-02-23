@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заказы | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">Заказы</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item active">Заказы</li>
+                </ol>
+            </nav>
+        </div>
+        
+        <a href="{% url 'sales:order-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Создать заказ
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Поиск по клиенту или номеру..."
+                               value="{{ request.GET.search }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>
+                            Новый
+                        </option>
+                        <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>
+                            В обработке
+                        </option>
+                        <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>
+                            Завершен
+                        </option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>
+                            Отменен
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <input type="date" name="date_from" class="form-control" 
+                           value="{{ request.GET.date_from }}"
+                           placeholder="Дата с">
+                </div>
+                
+                <div class="col-md-2">
+                    <input type="date" name="date_to" class="form-control" 
+                           value="{{ request.GET.date_to }}"
+                           placeholder="Дата по">
+                </div>
+
+                <div class="col-md-2">
+                    <select name="sort" class="form-select">
+                        <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>
+                            Сначала новые
+                        </option>
+                        <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>
+                            Сначала старые
+                        </option>
+                        <option value="-total_amount" {% if request.GET.sort == '-total_amount' %}selected{% endif %}>
+                            По сумме (убыв.)
+                        </option>
+                        <option value="total_amount" {% if request.GET.sort == 'total_amount' %}selected{% endif %}>
+                            По сумме (возр.)
+                        </option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        {% for order in orders %}
+            <div class="col">
+                {% include 'components/cards/order_card.html' with order=order %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h5>Заказы не найдены</h5>
+                        <p class="text-muted mb-0">
+                            {% if request.GET.search or request.GET.status or request.GET.date_from %}
+                                Попробуйте изменить параметры поиска
+                            {% else %}
+                                В системе пока нет заказов
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% include 'includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('select[name], input[type="date"]').forEach(element => {
+    element.addEventListener('change', () => {
+        element.closest('form').submit();
+    });
+});
+</script>
+{% endblock %}

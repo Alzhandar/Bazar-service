@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заказ #{{ order.id }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'sales:order-list' %}">Заказы</a></li>
+            <li class="breadcrumb-item active">Заказ #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Информация о заказе</h5>
+                        <span class="badge bg-{{ order.get_status_color }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><small class="text-muted">Клиент:</small></p>
+                            <p class="h6">{{ order.customer.get_full_name }}</p>
+                            <p class="small text-muted">{{ order.customer.email }}</p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <p class="mb-1"><small class="text-muted">Менеджер:</small></p>
+                            <p class="h6">{{ order.sales_rep.get_full_name }}</p>
+                            <p class="small text-muted">{{ order.sales_rep.email }}</p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <p class="mb-1"><small class="text-muted">Дата создания:</small></p>
+                            <p class="h6">{{ order.created_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <p class="mb-1"><small class="text-muted">Последнее обновление:</small></p>
+                            <p class="h6">{{ order.updated_at|date:"d.m.Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Товары</h5>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Наименование</th>
+                                <th style="width: 100px;">Кол-во</th>
+                                <th style="width: 120px;">Цена</th>
+                                <th style="width: 120px;">Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>
+                                        <div>{{ item.product.name }}</div>
+                                        <small class="text-muted">SKU: {{ item.product.sku }}</small>
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>${{ item.price|floatformat:2 }}</td>
+                                    <td>${{ item.total|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Итого:</strong></td>
+                                <td><strong>${{ order.total_amount|floatformat:2 }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">Действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if order.status == 'pending' %}
+                            <button type="button" class="btn btn-success"
+                                    onclick="updateOrderStatus('accepted')">
+                                <i class="fas fa-check me-1"></i> Принять заказ
+                            </button>
+                            <button type="button" class="btn btn-danger"
+                                    onclick="updateOrderStatus('rejected')">
+                                <i class="fas fa-times me-1"></i> Отклонить заказ
+                            </button>
+                        {% endif %}
+                        
+                        {% if order.status == 'accepted' %}
+                            <a href="{% url 'sales:invoice-create' order.id %}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-file-invoice me-1"></i> Выставить счет
+                            </a>
+                        {% endif %}
+                        
+                        {% if order.invoice %}
+                            <a href="{% url 'sales:invoice-detail' order.invoice.id %}" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-file-alt me-1"></i> Просмотреть счет
+                            </a>
+                        {% endif %}
+                        
+                        {% if user.role == 'admin' %}
+                            <a href="{% url 'sales:order-edit' order.id %}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-edit me-1"></i> Редактировать
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0">История изменений</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="timeline p-3">
+                        {% for log in order.logs.all %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-{{ log.get_action_color }}"></div>
+                                <div class="timeline-content">
+                                    <p class="mb-0">{{ log.message }}</p>
+                                    <small class="text-muted">
+                                        {{ log.created_at|date:"d.m.Y H:i" }}
+                                        {% if log.user %}
+                                            · {{ log.user.get_full_name }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted text-center py-3 mb-0">
+                                История изменений пуста
+                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateOrderStatus(status) {
+    if (confirm('Вы уверены, что хотите изменить статус заказа?')) {
+        fetch(`/api/sales/orders/{{ order.id }}/status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Ошибка при обновлении статуса');
+            }
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+<div class="card mb-3 shadow-sm">
+    <div class="card-header bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0">Заказ #{{ order.id }}</h6>
+                <small class="text-muted">
+                    {{ order.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+            <span class="badge bg-{{ order.get_status_color }}">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <p class="mb-1">
+                    <small class="text-muted">Клиент:</small><br>
+                    <strong>{{ order.customer.get_full_name }}</strong>
+                </p>
+                {% if order.sales_rep %}
+                    <p class="mb-1">
+                        <small class="text-muted">Менеджер:</small><br>
+                        {{ order.sales_rep.get_full_name }}
+                    </p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1">
+                    <small class="text-muted">Сумма заказа:</small><br>
+                    <span class="h5">${{ order.total_amount|floatformat:2 }}</span>
+                </p>
+                <p class="mb-1">
+                    <small class="text-muted">Позиций:</small>
+                    <span class="badge bg-secondary">{{ order.items.count }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'sales:order-detail' order.id %}" 
+               class="btn btn-sm btn-primary">
+                <i class="fas fa-eye me-1"></i> Подробнее
+            </a>
+            
+            {% if order.status == 'pending' and user.role in 'admin,sales' %}
+                <div class="btn-group">
+                    <button type="button" 
+                            class="btn btn-sm btn-success"
+                            onclick="updateOrderStatus('{{ order.id }}', 'accepted')"
+                            data-bs-toggle="tooltip"
+                            title="Принять заказ">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-danger"
+                            onclick="updateOrderStatus('{{ order.id }}', 'rejected')"
+                            data-bs-toggle="tooltip"
+                            title="Отклонить заказ">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+

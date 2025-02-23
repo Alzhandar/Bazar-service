@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Счета | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">Счета</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item active">Счета</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Поиск по номеру..."
+                               value="{{ request.GET.search }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>
+                            Ожидает оплаты
+                        </option>
+                        <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>
+                            Оплачен
+                        </option>
+                        <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>
+                            Просрочен
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <input type="date" name="date_from" class="form-control" 
+                           value="{{ request.GET.date_from }}"
+                           placeholder="Дата с">
+                </div>
+                
+                <div class="col-md-3">
+                    <input type="date" name="date_to" class="form-control" 
+                           value="{{ request.GET.date_to }}"
+                           placeholder="Дата по">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Номер счета</th>
+                        <th>Клиент</th>
+                        <th>Сумма</th>
+                        <th>Дата выставления</th>
+                        <th>Срок оплаты</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.number }}</td>
+                            <td>{{ invoice.order.customer.get_full_name }}</td>
+                            <td>${{ invoice.total_amount|floatformat:2 }}</td>
+                            <td>{{ invoice.created_at|date:"d.m.Y" }}</td>
+                            <td>{{ invoice.due_date|date:"d.m.Y" }}</td>
+                            <td>
+                                <span class="badge bg-{{ invoice.get_status_color }}">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'sales:invoice-detail' invoice.id %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'sales:invoice-pdf' invoice.id %}" 
+                                       class="btn btn-sm btn-outline-secondary" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <p class="text-muted mb-0">Счета не найдены</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'includes/pagination.html' %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('select[name], input[type="date"]').forEach(element => {
+    element.addEventListener('change', () => {
+        element.closest('form').submit();
+    });
+});
+</script>
+{% endblock %}

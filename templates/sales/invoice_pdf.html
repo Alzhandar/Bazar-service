@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Счет #{{ invoice.number }}</title>
+    <style>
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .company-info {
+            float: left;
+        }
+        .invoice-info {
+            float: right;
+            text-align: right;
+        }
+        .clear {
+            clear: both;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .total {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-info">
+            <h2>Trading Platform</h2>
+            <p>ИНН: 1234567890</p>
+            <p>КПП: 123456789</p>
+            <p>Адрес: г. Москва, ул. Примерная, д. 1</p>
+        </div>
+        <div class="invoice-info">
+            <h1>Счет #{{ invoice.number }}</h1>
+            <p>Дата: {{ invoice.created_at|date:"d.m.Y" }}</p>
+            <p>Срок оплаты: {{ invoice.due_date|date:"d.m.Y" }}</p>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+    <div class="client-info">
+        <h3>Клиент:</h3>
+        <p>{{ invoice.order.customer.get_full_name }}</p>
+        <p>{{ invoice.order.customer.email }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Наименование</th>
+                <th>Количество</th>
+                <th>Цена</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.order.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.price|floatformat:2 }}</td>
+                    <td>${{ item.total|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        <p><strong>Итого:</strong> ${{ invoice.order.total_amount|floatformat:2 }}</p>
+        {% if invoice.tax_amount %}
+            <p>НДС (20%): ${{ invoice.tax_amount|floatformat:2 }}</p>
+            <p><strong>Всего к оплате:</strong> ${{ invoice.total_amount|floatformat:2 }}</p>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <p>Оплата должна быть произведена в указанный срок.</p>
+        <p>При оплате укажите номер счета: {{ invoice.number }}</p>
+    </div>
+</body>
+</html>

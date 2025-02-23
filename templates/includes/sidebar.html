@@ -1,0 +1,51 @@
+<div class="sidebar-sticky pt-3">
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+        <span>Основное меню</span>
+    </h6>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'products' %}active{% endif %}"
+               href="{% url 'products:product-list' %}">
+                <i class="fas fa-box me-2"></i>
+                Продукты
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'trading' %}active{% endif %}"
+               href="{% url 'trading:order-list' %}">
+                <i class="fas fa-exchange-alt me-2"></i>
+                Торговля
+            </a>
+        </li>
+        {% if user.role in 'admin,sales' %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.app_name == 'sales' %}active{% endif %}"
+                   href="{% url 'sales:order-list' %}">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    Продажи
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+
+    {% if user.role == 'admin' %}
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Администрирование</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}"
+                   href="{% url 'analytics:dashboard' %}">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Аналитика
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">
+                    <i class="fas fa-cog me-2"></i>
+                    Админ-панель
+                </a>
+            </li>
+        </ul>
+    {% endif %}
+</div>
