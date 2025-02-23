@@ -21,15 +21,27 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api/users/', include('users.urls')),
-    path('api/products/', include('products.urls')),
-    path('api/trading/', include('trading.urls')),
-    path('api/sales/', include('sales.urls')),
-    path('api/analytics/', include('analytics.urls')),
-
+    
+    path('api/docs/swagger/', schema_view.with_ui('swagger', cache_timeout=0), 
+         name='schema-swagger-ui'),
+    path('api/docs/redoc/', schema_view.with_ui('redoc', cache_timeout=0), 
+         name='schema-redoc'),
+    
+    path('api/', include([
+        path('users/', include(('users.urls', 'users'), namespace='users-api')),
+        path('products/', include(('products.urls', 'products'), namespace='products-api')),
+        path('trading/', include(('trading.urls', 'trading'), namespace='trading-api')),
+        path('sales/', include(('sales.urls', 'sales'), namespace='sales-api')),
+        path('analytics/', include(('analytics.urls', 'analytics'), namespace='analytics-api')),
+    ])),
+    
+    path('', include('users.urls')),
+    path('products/', include('products.urls')),
+    path('trading/', include('trading.urls')),
+    path('sales/', include('sales.urls')),
+    path('analytics/', include('analytics.urls')),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

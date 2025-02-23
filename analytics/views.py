@@ -7,6 +7,8 @@ from .models import AnalyticsReport
 from .serializers import AnalyticsReportSerializer
 from .service import AnalyticsService
 from .task import generate_daily_reports
+from django.views.generic import ListView, DetailView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
 class AnalyticsViewSet(viewsets.ModelViewSet):
@@ -45,3 +47,37 @@ class AnalyticsViewSet(viewsets.ModelViewSet):
             'task_id': task.id,
             'status': 'Reports generation started'
         })
+
+class AnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'analytics/dashboard.html'
+    
+    def test_func(self):
+        return self.request.user.role in ['admin', 'analyst']
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+        
+        context['trading_volume'] = AnalyticsService.get_trading_volume(date_from, date_to)
+        context['sales_performance'] = AnalyticsService.get_sales_performance(date_from, date_to)
+        context['product_performance'] = AnalyticsService.get_product_performance(date_from, date_to)
+        
+        return context
+
+class AnalyticsReportListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = AnalyticsReport
+    template_name = 'analytics/report_list.html'
+    context_object_name = 'reports'
+    paginate_by = 20
+    
+    def test_func(self):
+        return self.request.user.role in ['admin', 'analyst']
+
+class AnalyticsReportDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = AnalyticsReport
+    template_name = 'analytics/report_detail.html'
+    context_object_name = 'report'
+    
+    def test_func(self):
+        return self.request.user.role in ['admin', 'analyst']

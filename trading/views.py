@@ -3,6 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+
+from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.db.models import Q
+
 from .models import Order, Transaction
 from .serializers import OrderSerializer, TransactionSerializer
 from products.models import Product
@@ -43,3 +51,58 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
         ) | Transaction.objects.filter(
             seller_order__in=user_orders
         )
+
+class OrderListView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'trading/order_list.html'
+    context_object_name = 'orders'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Order.objects.filter(user=self.request.user)
+        status_filter = self.request.GET.get('status', '')
+        type_filter = self.request.GET.get('type', '')
+
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        if type_filter:
+            queryset = queryset.filter(order_type=type_filter)
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_filter'] = self.request.GET.get('status', '')
+        context['type_filter'] = self.request.GET.get('type', '')
+        return context
+
+class OrderCreateView(LoginRequiredMixin, CreateView):
+    model = Order
+    template_name = 'trading/order_form.html'
+    fields = ['product', 'order_type', 'quantity', 'price']
+    success_url = reverse_lazy('order-list')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = 'trading/order_detail.html'
+    context_object_name = 'order'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+class TransactionListView(LoginRequiredMixin, ListView):
+    model = Transaction
+    template_name = 'trading/transaction_list.html'
+    context_object_name = 'transactions'
+    paginate_by = 20
+
+    def get_queryset(self):
+        user_orders = Order.objects.filter(user=self.request.user)
+        return Transaction.objects.filter(
+            Q(buyer_order__in=user_orders) |
+            Q(seller_order__in=user_orders)
+        ).order_by('-executed_at')
