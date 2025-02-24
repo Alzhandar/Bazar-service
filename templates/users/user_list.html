@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="container py-4">
+    <!-- Заголовок и фильтры -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">Пользователи</h4>
         <div class="d-flex gap-2">
@@ -17,10 +18,9 @@
             </div>
             <select class="form-select" id="roleFilter" style="width: auto;">
                 <option value="">Все роли</option>
-                <option value="admin">Администратор</option>
-                <option value="manager">Менеджер</option>
-                <option value="sales">Продавец</option>
-                <option value="user">Пользователь</option>
+                {% for role, name in user_roles %}
+                    <option value="{{ role }}">{{ name }}</option>
+                {% endfor %}
             </select>
         </div>
     </div>
@@ -42,7 +42,7 @@
                 </thead>
                 <tbody>
                     {% for user in users %}
-                    <tr>
+                    <tr data-user-id="{{ user.id }}">
                         <td>{{ user.id }}</td>
                         <td>
                             <div class="d-flex align-items-center">
@@ -68,21 +68,22 @@
                             </span>
                         </td>
                         <td>
-                            {% if user.is_active %}
-                                <span class="badge bg-success">Активен</span>
-                            {% else %}
-                                <span class="badge bg-danger">Заблокирован</span>
-                            {% endif %}
+                            <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ user.is_active|yesno:"Активен,Заблокирован" }}
+                            </span>
                         </td>
                         <td>{{ user.date_joined|date:"d.m.Y" }}</td>
                         <td>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                        onclick="location.href='{% url 'admin:users_user_change' user.id %}'">
+                                <a href="{% url 'admin:users_user_change' user.id %}" 
+                                   class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i>
-                                </button>
+                                </a>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
-                                        onclick="confirmDelete('{{ user.id }}', '{{ user.get_full_name|default:user.username }}')">
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteModal"
+                                        data-user-id="{{ user.id }}"
+                                        data-user-name="{{ user.get_full_name|default:user.username }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -97,6 +98,7 @@
     {% include 'includes/pagination.html' %}
 </div>
 
+<!-- Модальное окно удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -110,7 +112,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteForm" method="post" style="display: inline;">
+                <form id="deleteForm" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Удалить</button>
                 </form>
@@ -122,31 +124,87 @@
 
 {% block extra_js %}
 <script>
-const searchInput = document.getElementById('searchInput');
-const roleFilter = document.getElementById('roleFilter');
-const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-
-function filterUsers() {
-    const searchValue = searchInput.value.toLowerCase();
-    const roleValue = roleFilter.value.toLowerCase();
-    const rows = document.querySelectorAll('tbody tr');
-
-    rows.forEach(row => {
-        const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        const role = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-        const matchesSearch = name.includes(searchValue);
-        const matchesRole = !roleValue || role.includes(roleValue);
-        row.style.display = matchesSearch && matchesRole ? '' : 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const deleteForm = document.getElementById('deleteForm');
+    
+        // Фильтрация пользователей
+        function filterUsers() {
+            const searchValue = searchInput.value.toLowerCase();
+            const roleValue = roleFilter.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+    
+            rows.forEach(row => {
+                const userData = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const userRole = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const matchesSearch = userData.includes(searchValue);
+                const matchesRole = !roleValue || userRole.includes(roleValue);
+                row.style.display = matchesSearch && matchesRole ? '' : 'none';
+            });
+        }
+    
+        // События фильтрации
+        searchInput.addEventListener('input', filterUsers);
+        roleFilter.addEventListener('change', filterUsers);
+    
+        // Обработка модального окна удаления
+        document.getElementById('deleteModal').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-user-id');
+            const userName = button.getAttribute('data-user-name');
+            
+            document.getElementById('userName').textContent = userName;
+            deleteForm.action = `/users/${userId}/delete/`;
+        });
+    
+        // Обработка формы удаления
+        deleteForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    },
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    const userId = this.action.split('/').slice(-2)[0];
+                    document.querySelector(`tr[data-user-id="${userId}"]`).remove();
+                    deleteModal.hide();
+                    // Показываем сообщение об успехе
+                    showNotification('Пользователь успешно удален', 'success');
+                } else {
+                    throw new Error(data.error || 'Ошибка удаления пользователя');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showNotification(error.message, 'error');
+            }
+        });
+    
+        // Функция для показа уведомлений
+        function showNotification(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container').insertAdjacentElement('afterbegin', alertDiv);
+            
+            // Автоматически скрываем через 3 секунды
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
     });
-}
-
-searchInput.addEventListener('input', filterUsers);
-roleFilter.addEventListener('change', filterUsers);
-
-function confirmDelete(userId, userName) {
-    document.getElementById('userName').textContent = userName;
-    document.getElementById('deleteForm').action = `/users/${userId}/delete/`;
-    deleteModal.show();
-}
-</script>
+    </script>
+    
 {% endblock %}

@@ -24,6 +24,14 @@ class User(AbstractUser):
             return self.avatar.url
         return None 
     
+    def get_role_color(self):
+        return {
+            'admin': 'primary',
+            'trader': 'success',
+            'sales': 'info',
+            'customer': 'secondary',
+        }.get(self.role, 'secondary')
+    
     class Meta:
         db_table = 'users'
         verbose_name = 'User'

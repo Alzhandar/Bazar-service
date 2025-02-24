@@ -300,3 +300,23 @@
 [data-theme="dark"] .nav-badge {
     background: var(--gray-800);
 }
+.sidebar-footer .nav-link {
+    padding: 0.75rem 1rem;
+    color: var(--sidebar-text);
+    transition: all 0.3s ease;
+}
+
+.sidebar-footer .nav-link:hover {
+    background: var(--sidebar-hover);
+    color: white;
+}
+
+.sidebar-footer button.nav-link {
+    width: 100%;
+    text-align: left;
+}
+
+.sidebar-collapsed .sidebar-footer button.nav-link {
+    justify-content: center;
+    padding: 0.75rem;
+}

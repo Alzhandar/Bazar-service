@@ -7,7 +7,9 @@ from .views import (
     CustomLogoutView,
     UserProfileView, 
     UserUpdateView, 
-    UserListView
+    UserListView,
+    UserDeleteView,
+    RegisterView
 )
 
 app_name = 'users'
@@ -26,5 +28,8 @@ web_urls = [
     path('profile/', UserProfileView.as_view(), name='profile'),
     path('profile/edit/', UserUpdateView.as_view(), name='profile-edit'),
     path('users/', UserListView.as_view(), name='user-list'),
+    path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user-delete'),
+    path('register/', RegisterView.as_view(), name='register'),
 ]
+
 urlpatterns = web_urls + api_urls + router.urls

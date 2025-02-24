@@ -64,11 +64,10 @@
             </div>
         {% endif %}
     </nav>
-
     <div class="sidebar-footer">
-        <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+        <form method="post" action="{% url 'users:logout' %}" class="d-inline w-100">
             {% csrf_token %}
-            <button type="submit" class="nav-link border-0 bg-transparent w-100">
+            <button type="submit" class="nav-link border-0 bg-transparent w-100 d-flex align-items-center">
                 <span class="nav-icon">
                     <i class="fas fa-sign-out-alt"></i>
                 </span>
