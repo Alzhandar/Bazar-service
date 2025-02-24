@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_yasg',
+    'widget_tweaks', 
+    
     'users',
     'products',
     'trading',
@@ -110,7 +112,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -172,3 +177,8 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+
+FILE_UPLOAD_PERMISSIONS = 0o644
+VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
+MAX_UPLOAD_SIZE = 5242880 

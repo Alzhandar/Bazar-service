@@ -27,5 +27,4 @@ web_urls = [
     path('profile/edit/', UserUpdateView.as_view(), name='profile-edit'),
     path('users/', UserListView.as_view(), name='user-list'),
 ]
-
 urlpatterns = web_urls + api_urls + router.urls

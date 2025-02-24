@@ -1,0 +1,57 @@
+.avatar-upload {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.preview-avatar {
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.upload-button {
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 0.625rem 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.text-danger {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Темная тема */
+[data-theme="dark"] .form-label {
+    color: var(--gray-300);
+}
+
+[data-theme="dark"] .form-control {
+    background-color: var(--gray-800);
+    border-color: var(--gray-700);
+    color: var(--gray-100);
+}
+
+[data-theme="dark"] .form-control:focus {
+    border-color: var(--primary);
+    background-color: var(--gray-700);
+}

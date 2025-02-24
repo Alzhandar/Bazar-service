@@ -1,0 +1,310 @@
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --secondary: #64748b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    
+    --header-height: 64px;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --container-padding: 1.5rem;
+    --border-radius-sm: 0.375rem;
+    --border-radius: 0.5rem;
+    --border-radius-lg: 0.75rem;
+    
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-size: 16px;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    color: var(--gray-800);
+    background: var(--gray-50);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  /* Типография */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--gray-900);
+  }
+  
+  .text-sm { font-size: 0.875rem; }
+  .text-base { font-size: 1rem; }
+  .text-lg { font-size: 1.125rem; }
+  .text-xl { font-size: 1.25rem; }
+  .text-2xl { font-size: 1.5rem; }
+  .text-3xl { font-size: 1.875rem; }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    border: 1px solid transparent;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+  
+  .card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    transition: all var(--transition);
+  }
+  
+  .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  .layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    margin-top: var(--header-height);
+    padding: var(--container-padding);
+    transition: margin-left var(--transition);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .fade-in {
+    animation: fadeIn var(--transition) ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+  
+  .slide-in {
+    animation: slideIn var(--transition) ease-out;
+  }
+  
+  .shadow-hover {
+    transition: box-shadow var(--transition);
+  }
+  
+  .shadow-hover:hover {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  @media (max-width: 1024px) {
+    :root {
+      --container-padding: 1rem;
+    }
+    
+    .main-content {
+      margin-left: 0;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  [data-theme="dark"] {
+    --gray-50: #18191a;
+    --gray-100: #242526;
+    --gray-200: #3a3b3c;
+    --gray-700: #e4e6eb;
+    --gray-800: #f5f6f7;
+    --gray-900: #ffffff;
+    
+    color-scheme: dark;
+  }
+  
+  [data-theme="dark"] .card {
+    background: var(--gray-100);
+  }
+  
+  [data-theme="dark"] .btn-primary {
+    background: var(--primary-dark);
+  }
+  
+  [data-theme="dark"] .btn-primary:hover {
+    background: var(--primary);
+  }
+  /* ...existing code... */
+
+.user-profile {
+    position: relative;
+    margin-left: 1.5rem;
+}
+
+.profile-toggle {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--gray-700);
+    transition: all var(--transition);
+}
+
+.profile-toggle:hover {
+    background: var(--gray-100);
+}
+
+.user-avatar,
+.user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+}
+
+.user-avatar {
+    object-fit: cover;
+}
+
+.user-avatar-placeholder {
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.user-info {
+    text-align: left;
+    margin-right: 0.5rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--gray-900);
+    line-height: 1.2;
+}
+
+.user-role {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+/* Стили выпадающего меню */
+.dropdown-menu {
+    min-width: 220px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+}
+
+.dropdown-item {
+    padding: 0.625rem 1rem;
+    border-radius: var(--border-radius-sm);
+    color: var(--gray-700);
+    font-weight: 500;
+    transition: all var(--transition);
+}
+
+.dropdown-item:hover {
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+.dropdown-item i {
+    width: 1.25rem;
+    color: var(--gray-500);
+}
+
+.dropdown-item.text-danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.dropdown-item.text-danger:hover i {
+    color: white;
+}
+
+/* Темная тема */
+[data-theme="dark"] .profile-toggle {
+    color: var(--gray-300);
+}
+
+[data-theme="dark"] .profile-toggle:hover {
+    background: var(--gray-700);
+}
+
+[data-theme="dark"] .user-name {
+    color: var(--gray-100);
+}
+
+[data-theme="dark"] .dropdown-menu {
+    background: var(--gray-800);
+    border-color: var(--gray-700);
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: var(--gray-300);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: var(--gray-700);
+    color: white;
+}
+
+[data-theme="dark"] .dropdown-divider {
+    border-color: var(--gray-700);
+}

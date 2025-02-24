@@ -11,19 +11,20 @@ from .views import (
 
 app_name = 'products'
 
-router = DefaultRouter()
-router.register('categories', CategoryViewSet, basename='category')
-router.register('items', ProductViewSet, basename='product')
+# API роутер
+api_router = DefaultRouter()
+api_router.register('categories', CategoryViewSet, basename='category-api')
+api_router.register('products', ProductViewSet, basename='product-api')
 
-api_urls = [
-    path('', include(router.urls)),
-]
-
-web_urls = [
+# URL паттерны для веб-интерфейса
+web_urlpatterns = [
     path('', ProductListView.as_view(), name='product-list'),
     path('<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
     path('create/', ProductCreateView.as_view(), name='product-create'),
     path('<int:pk>/edit/', ProductUpdateView.as_view(), name='product-edit'),
 ]
 
-urlpatterns = web_urls + api_urls
+# Общие URL паттерны
+urlpatterns = web_urlpatterns + [
+    path('api/', include((api_router.urls, 'products-api'))),
+]

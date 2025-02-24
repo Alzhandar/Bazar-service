@@ -16,3 +16,4 @@ django-celery-beat
 django-celery-results
 weasyprint
 xhtml2pdf
+django-widget-tweaks

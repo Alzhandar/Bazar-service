@@ -5,34 +5,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Trading Platform{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/order-list.css' %}">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+    
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="layout-fixed" data-theme="light">
     {% include 'includes/header.html' %}
 
-    {% include 'includes/messages.html' %}
+    <div class="wrapper">
+        <button type="button" class="sidebar-toggle-mobile d-lg-none" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
 
-    <div class="container-fluid">
-        <div class="row">
-            {% if request.user.is_authenticated %}
-                <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                    {% include 'includes/sidebar.html' %}
+        <div class="sidebar-overlay"></div>
+
+        {% if user.is_authenticated %}
+            <aside class="sidebar" aria-expanded="false">
+               <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="sidebar-brand">
+                    <img src="{% static 'images/logo.svg' %}" alt="Logo" class="brand-logo">
+                    <span class="brand-text">Trading Platform</span>
+                </div>
+
+                {% include 'includes/sidebar.html' %}
+            </aside>
+        {% endif %}
+
+        <main class="main-content">
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
                 </div>
             {% endif %}
 
-            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="content">
                 {% block content %}{% endblock %}
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
 
-    {% include 'includes/footer.html' %}
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

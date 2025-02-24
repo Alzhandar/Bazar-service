@@ -1,51 +1,79 @@
-<div class="sidebar-sticky pt-3">
-    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-        <span>Основное меню</span>
-    </h6>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'products' %}active{% endif %}"
-               href="{% url 'products:product-list' %}">
-                <i class="fas fa-box me-2"></i>
-                Продукты
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'trading' %}active{% endif %}"
-               href="{% url 'trading:order-list' %}">
-                <i class="fas fa-exchange-alt me-2"></i>
-                Торговля
-            </a>
-        </li>
-        {% if user.role in 'admin,sales' %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'sales' %}active{% endif %}"
-                   href="{% url 'sales:order-list' %}">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Продажи
-                </a>
-            </li>
-        {% endif %}
-    </ul>
+{% load static %}
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <img src="{% static 'images/logo.svg' %}" alt="Trading Platform" class="brand-logo">
+        <span class="brand-text">Trading Platform</span>
+    </div>
 
-    {% if user.role == 'admin' %}
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-            <span>Администрирование</span>
-        </h6>
-        <ul class="nav flex-column mb-2">
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}"
-                   href="{% url 'analytics:dashboard' %}">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Аналитика
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">
-                    <i class="fas fa-cog me-2"></i>
-                    Админ-панель
-                </a>
-            </li>
-        </ul>
-    {% endif %}
-</div>
+=    <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <h6 class="nav-header">Основное меню</h6>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{% url 'products:product-list' %}" 
+                       class="nav-link {% if request.resolver_match.app_name == 'products' and request.resolver_match.url_name == 'product-list' %}active{% endif %}">
+                        <span class="nav-icon">
+                            <i class="fas fa-box"></i>
+                        </span>
+                        <span class="nav-text">Продукты</span>
+                        {% if products_count %}
+                            <span class="nav-badge">{{ products_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'sales:order-list' %}" 
+                       class="nav-link {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+                        <span class="nav-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </span>
+                        <span class="nav-text">Заказы</span>
+                        {% if pending_orders_count %}
+                            <span class="nav-badge">{{ pending_orders_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        {% if user.is_staff %}
+            <div class="nav-section">
+                <h6 class="nav-header">Администрирование</h6>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="{% url 'admin:index' %}" class="nav-link">
+                            <span class="nav-icon">
+                                <i class="fas fa-cog"></i>
+                            </span>
+                            <span class="nav-text">Настройки</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'users:user-list' %}" class="nav-link">
+                            <span class="nav-icon">
+                                <i class="fas fa-users"></i>
+                            </span>
+                            <span class="nav-text">Пользователи</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="nav-link border-0 bg-transparent w-100">
+                <span class="nav-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </span>
+                <span class="nav-text">Выйти</span>
+            </button>
+        </form>
+    </div>
+</aside>

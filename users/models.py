@@ -15,9 +15,14 @@ class User(AbstractUser):
     ]
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=CUSTOMER)
-    profile_image = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    avatar = models.ImageField(upload_to='profiles/', null=True, blank=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
+    
+    def get_avatar_url(self):
+        if self.avatar:
+            return self.avatar.url
+        return None 
     
     class Meta:
         db_table = 'users'

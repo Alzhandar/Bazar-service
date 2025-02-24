@@ -20,9 +20,10 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+
+
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='products:product-list', permanent=False), name='home'),
-         
     path('admin/', admin.site.urls),
     
     path('api/docs/swagger/', schema_view.with_ui('swagger', cache_timeout=0), 
@@ -39,7 +40,7 @@ urlpatterns = [
     ])),
     
     path('', include('users.urls')),
-    path('products/', include('products.urls')),
+    path('products/', include('products.urls', namespace='products')),  
     path('trading/', include('trading.urls')),
     path('sales/', include('sales.urls')),
     path('analytics/', include('analytics.urls')),

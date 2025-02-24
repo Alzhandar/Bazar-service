@@ -2,6 +2,11 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth.views import LogoutView
+from django.urls import reverse_lazy
+
+from django.core.files.storage import default_storage
+import os
 
 from django.views.generic import ListView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -49,8 +54,11 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
 class CustomLogoutView(LogoutView):
-    next_page = 'login'
-
+    next_page = 'users:login'
+    
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+    
 class UserProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'users/profile.html'
@@ -62,16 +70,25 @@ class UserProfileView(LoginRequiredMixin, DetailView):
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'users/profile_edit.html'
-    fields = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'profile_image']
-    success_url = reverse_lazy('profile')
+    fields = ['first_name', 'last_name', 'email', 'avatar']
+    success_url = reverse_lazy('users:profile')
 
     def get_object(self):
         return self.request.user
 
     def form_valid(self, form):
-        messages.success(self.request, 'Профиль успешно обновлен')
-        return super().form_valid(form)
+        if 'avatar' in form.changed_data:
+            old_avatar = self.get_object().avatar
+            if old_avatar:
+                try:
+                    default_storage.delete(old_avatar.path)
+                except Exception as e:
+                    print(f"Error deleting old avatar: {e}")
 
+        response = super().form_valid(form)
+        messages.success(self.request, 'Профиль успешно обновлен')
+        return response
+    
 class UserListView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users/user_list.html'

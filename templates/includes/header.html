@@ -1,55 +1,90 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'products:product-list' %}">
-            Trading Platform
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
-                data-bs-target="#navbarNav" aria-controls="navbarNav" 
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:product-list' %}">Продукты</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'trading:order-list' %}">Торговля</a>
-                    </li>
-                    {% if user.role in 'admin,sales' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'sales:order-list' %}">Продажи</a>
-                        </li>
+<header class="header">
+    <div class="header-content">
+        <div class="search-form">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" class="search-input" placeholder="Поиск...">
+        </div>
+
+        <div class="nav-menu">
+            <!-- Уведомления -->
+            <div class="notifications-dropdown">
+                <button class="nav-link" type="button">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_notifications_count %}
+                        <span class="notification-badge">{{ unread_notifications_count }}</span>
                     {% endif %}
-                    {% if user.role == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'analytics:dashboard' %}">Аналитика</a>
-                        </li>
+                </button>
+                
+                <div class="notifications-menu">
+                    <div class="notifications-header">
+                        <h6 class="mb-0">Уведомления</h6>
+                        <button class="btn btn-link btn-sm">Отметить все как прочитанные</button>
+                    </div>
+                    
+                    <div class="notifications-body">
+                        {% for notification in notifications %}
+                            <a href="{{ notification.url }}" class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                                <div class="notification-icon">
+                                    <i class="fas fa-{{ notification.icon }}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p>{{ notification.message }}</p>
+                                    <small>{{ notification.created_at|timesince }} назад</small>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">Нет новых уведомлений</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Профиль -->
+            <div class="user-profile dropdown">
+                <button class="profile-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="user-avatar">
+                    {% else %}
+                        <div class="user-avatar-placeholder">
+                            {{ user.get_initials }}
+                        </div>
                     {% endif %}
-                {% endif %}
-            </ul>
-            
-            <ul class="navbar-nav">
-                {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" 
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ user.get_full_name|default:user.username }}
+                    <div class="user-info">
+                        <div class="user-name">{{ user.get_full_name }}</div>
+                        <div class="user-role">{{ user.get_role_display }}</div>
+                    </div>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="{% url 'users:profile' %}">
+                            <i class="fas fa-user me-2"></i>
+                            Мой профиль
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{% url 'users:profile' %}">Профиль</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'users:logout' %}">Выход</a></li>
-                        </ul>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'users:login' %}">Вход</a>
+                    <li>
+                        <a class="dropdown-item" href="{% url 'users:profile-edit' %}">
+                            <i class="fas fa-cog me-2"></i>
+                            Настройки
+                        </a>
                     </li>
-                {% endif %}
-            </ul>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="{% url 'users:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Переключатель темы -->
+            <button id="themeToggle" class="nav-link" type="button">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
     </div>
-</nav>
+</header>

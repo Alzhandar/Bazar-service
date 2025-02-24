@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Персональная информация', {
-            'fields': ('first_name', 'last_name', 'email', 'profile_image', 'phone_number', 'address')
+            'fields': ('first_name', 'last_name', 'email', 'avatar', 'phone_number', 'address')
         }),
         ('Разрешения', {
             'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
@@ -33,8 +33,8 @@ class CustomUserAdmin(UserAdmin):
     full_name.short_description = "Полное имя"
 
     def display_profile_image(self, obj):
-        if obj.profile_image:
+        if obj.avatar:
             return format_html('<img src="{}" width="50" height="50" style="border-radius: 50%;" />', 
-                             obj.profile_image.url)
+                             obj.avatar.url)
         return "Нет фото"
     display_profile_image.short_description = "Фото профиля"
