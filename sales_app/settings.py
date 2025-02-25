@@ -114,6 +114,10 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+LOGIN_URL = 'users:login'  
+LOGIN_REDIRECT_URL = 'products:product-list'  
+LOGOUT_REDIRECT_URL = 'users:login' 
+
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
