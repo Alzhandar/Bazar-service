@@ -1,12 +1,19 @@
 <header class="header">
     <div class="header-content">
+        <button type="button" class="mobile-menu-toggle d-lg-none">
+            <i class="fas fa-bars"></i>
+        </button>
+
         <div class="search-form">
             <i class="fas fa-search search-icon"></i>
             <input type="search" class="search-input" placeholder="Поиск...">
         </div>
 
+        <button type="button" class="search-toggle d-lg-none">
+            <i class="fas fa-search"></i>
+        </button>
+
         <div class="nav-menu">
-            <!-- Уведомления -->
             <div class="notifications-dropdown">
                 <button class="nav-link" type="button">
                     <i class="fas fa-bell"></i>
@@ -41,7 +48,6 @@
                 </div>
             </div>
 
-            <!-- Профиль -->
             <div class="user-profile dropdown">
                 <button class="profile-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {% if user.avatar %}
@@ -81,10 +87,38 @@
                 </ul>
             </div>
 
-            <!-- Переключатель темы -->
             <button id="themeToggle" class="nav-link" type="button">
                 <i class="fas fa-moon"></i>
             </button>
         </div>
+
+        <div class="mobile-nav">
+            <div class="mobile-nav-actions">
+                <button class="mobile-nav-btn" type="button">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_notifications_count %}
+                        <span class="notification-badge">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </button>
+                <button class="mobile-nav-btn" type="button">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="mobile-nav-btn" id="mobileThemeToggle" type="button">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
     </div>
+
+    <div class="mobile-search">
+        <div class="mobile-search-header">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" class="mobile-search-input" placeholder="Поиск...">
+            <button type="button" class="mobile-search-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="mobile-overlay"></div>
 </header>
