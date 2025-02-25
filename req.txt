@@ -17,3 +17,4 @@ django-celery-results
 weasyprint
 xhtml2pdf
 django-widget-tweaks
+psycopg2-binary
