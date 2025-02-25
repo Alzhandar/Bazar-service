@@ -14,9 +14,9 @@ Bazar-service представляет собой веб-приложение д
 - Корзина и оформление заказов
 
 ## Технологии
-- Frontend: React, Redux, HTML5, CSS3
-- Backend: Node.js, Express
-- База данных: MongoDB
+- Frontend: Templates
+- Backend: Django
+- База данных: PostgreSQL
 - Аутентификация: JWT
 
 ## Установка и запуск
