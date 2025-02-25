@@ -1,50 +1,69 @@
-{% extends 'base.html' %}
-{% load widget_tweaks %}
 
-{% block title %}Вход | {{ block.super }}{% endblock %}
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm mt-5">
-                <div class="card-body p-4">
-                    <h4 class="card-title text-center mb-4">Вход в систему</h4>
-                    
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">
-                                    {{ field.label }}
-                                </label>
-                                {% render_field field class="form-control" placeholder=field.help_text %}
-                                {% for error in field.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ error }}
-                                    </div>
-                                {% endfor %}
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1 class="login-title">Добро пожаловать</h1>
+                <p class="login-subtitle">Войдите в свой аккаунт</p>
+            </div>
+            
+            <form method="post" class="login-form" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas {% if field.name == 'username' %}fa-user{% else %}fa-lock{% endif %} input-icon"></i>
+                            {% render_field field class="form-input" placeholder=field.help_text %}
+                        </div>
+                        {% for error in field.errors %}
+                            <div class="error-message">
+                                {{ error }}
                             </div>
                         {% endfor %}
+                    </div>
+                {% endfor %}
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt me-1"></i> Войти
-                            </button>
-                        </div>
-                    </form>
+                <div class="form-footer">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Запомнить меня</label>
+                    </div>
+
                 </div>
-            </div>
+
+                <button type="submit" class="login-button">
+                    <i class="fas fa-sign-in-alt button-icon"></i>
+                    <span>Войти</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="register-prompt">
+            <p>Нет аккаунта?</p>
+            <a href="{% url 'users:register' %}" class="register-link">
+                Зарегистрироваться
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
     </div>
-    <div class="text-center mt-4">
-        <p class="mb-0">
-            Нет аккаунта? 
-            <a href="{% url 'users:register' %}" class="text-primary text-decoration-none">
-                Зарегистрироваться
-            </a>
-        </p>
+
+    <div class="login-background">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
     </div>
 </div>
 {% endblock %}
