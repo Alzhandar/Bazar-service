@@ -29,15 +29,15 @@
         <div class="sidebar-overlay"></div>
 
         {% if user.is_authenticated %}
-            <aside class="sidebar" aria-expanded="false">
-               <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
+            <aside class="sidebar">
                 <div class="sidebar-brand">
                     <img src="{% static 'images/logo.svg' %}" alt="Logo" class="brand-logo">
                     <span class="brand-text">Trading Platform</span>
                 </div>
+
+                <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
 
                 {% include 'includes/sidebar.html' %}
             </aside>

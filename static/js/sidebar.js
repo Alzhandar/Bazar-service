@@ -1,4 +1,3 @@
-/* filepath: /Users/lzandaribaev/Desktop/WEB/projects/sales-app/static/js/sidebar.js */
 class Sidebar {
     constructor() {
         this.init();
@@ -12,37 +11,30 @@ class Sidebar {
         this.mainContent = document.querySelector('.main-content');
 
         if (this.toggle) {
-            this.toggle.addEventListener('click', () => this.toggleSidebar());
+            this.toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleSidebar();
+            });
         }
 
         if (this.toggleMobile) {
-            this.toggleMobile.addEventListener('click', () => this.toggleMobile());
+            this.toggleMobile.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleMobileSidebar();
+            });
         }
 
-        if (this.overlay) {
-            this.overlay.addEventListener('click', () => this.closeMobileSidebar());
-        }
-
-        // Восстанавливаем состояние при загрузке
         this.restoreState();
-
-        // Добавляем обработчик изменения размера окна
-        window.addEventListener('resize', () => this.handleResize());
     }
 
     toggleSidebar() {
         if (!this.sidebar) return;
-
+        
+        const isCollapsed = !this.sidebar.classList.contains('sidebar-collapsed');
+        
         requestAnimationFrame(() => {
-            const isCollapsed = this.sidebar.classList.toggle('sidebar-collapsed');
+            this.sidebar.classList.toggle('sidebar-collapsed', isCollapsed);
             localStorage.setItem('sidebarCollapsed', isCollapsed);
-
-            // Обновляем основной контент
-            if (this.mainContent) {
-                this.mainContent.style.marginLeft = isCollapsed ? 
-                    'var(--sidebar-collapsed-width)' : 
-                    'var(--sidebar-width)';
-            }
         });
     }
 
@@ -85,7 +77,6 @@ class Sidebar {
     }
 }
 
-// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     new Sidebar();
 });
