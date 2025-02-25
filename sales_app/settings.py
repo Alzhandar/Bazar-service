@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'analytics',
     'django_celery_beat',
     'django_celery_results',
+    'storages'
     
     
 ]
@@ -196,3 +197,24 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
+
+AWS_ACCESS_KEY_ID = os.getenv('DO_SPACES_KEY')
+AWS_SECRET_ACCESS_KEY = os.getenv('DO_SPACES_SECRET')
+AWS_STORAGE_BUCKET_NAME = os.getenv('DO_SPACES_BUCKET')
+AWS_S3_ENDPOINT_URL = os.getenv('DO_SPACES_ENDPOINT')
+AWS_S3_REGION_NAME = os.getenv('DO_SPACES_REGION')
+
+AWS_DEFAULT_ACL = 'public-read'
+AWS_S3_USE_SSL = True
+AWS_S3_VERIFY = True
+AWS_S3_ADDRESSING_STYLE = 'virtual'
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_FILE_OVERWRITE = False
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.digitaloceanspaces.com/'
+MEDIA_ROOT = 'media/'
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
