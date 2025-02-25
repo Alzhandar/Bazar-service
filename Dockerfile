@@ -6,8 +6,12 @@ COPY req.txt .
 
 RUN pip install --no-cache-dir -r req.txt
 
+RUN mkdir -p /usr/src/app/static
+
 COPY . .
 
-EXPOSE 8000
+RUN chmod -R 755 /usr/src/app/static
+
+EXPOSE 7654
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

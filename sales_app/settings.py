@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 
 load_dotenv()
@@ -183,3 +184,15 @@ CELERY_TIMEZONE = 'UTC'
 FILE_UPLOAD_PERMISSIONS = 0o644
 VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
 MAX_UPLOAD_SIZE = 5242880 
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://dolphin-app-zscjm.ondigitalocean.app",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
