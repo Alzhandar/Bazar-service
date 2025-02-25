@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>{% block title %}Trading Platform{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,36 +27,25 @@
         <button type="button" class="sidebar-toggle-mobile d-lg-none" aria-label="Toggle sidebar">
             <i class="fas fa-bars"></i>
         </button>
-
+    
         <div class="sidebar-overlay"></div>
-
+    
         {% if user.is_authenticated %}
-            <aside class="sidebar">
-                <div class="sidebar-brand">
-                    <img src="{% static 'images/logo.svg' %}" alt="Logo" class="brand-logo">
-                    <span class="brand-text">Trading Platform</span>
-                </div>
-
-                <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                {% include 'includes/sidebar.html' %}
-            </aside>
+            {% include 'includes/sidebar.html' %}
         {% endif %}
-
+    
         <main class="main-content">
             {% if messages %}
-            <div class="messages-container">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
             {% endif %}
-
+    
             <div class="content">
                 {% block content %}{% endblock %}
             </div>
