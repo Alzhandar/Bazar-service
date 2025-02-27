@@ -38,6 +38,7 @@ class AnalyticsViewSet(viewsets.ModelViewSet):
         date_from = request.query_params.get('date_from')
         date_to = request.query_params.get('date_to')
         data = AnalyticsService.get_product_performance(date_from, date_to)
+        
         return Response(data)
     
     @action(detail=False, methods=['post'])
@@ -47,7 +48,7 @@ class AnalyticsViewSet(viewsets.ModelViewSet):
             'task_id': task.id,
             'status': 'Reports generation started'
         })
-
+    
 class AnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'analytics/dashboard.html'
     
@@ -59,9 +60,7 @@ class AnalyticsDashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateVi
         date_from = self.request.GET.get('date_from')
         date_to = self.request.GET.get('date_to')
         
-        context['trading_volume'] = AnalyticsService.get_trading_volume(date_from, date_to)
-        context['sales_performance'] = AnalyticsService.get_sales_performance(date_from, date_to)
-        context['product_performance'] = AnalyticsService.get_product_performance(date_from, date_to)
+        context.update(AnalyticsService.get_dashboard_data(date_from, date_to))
         
         return context
 

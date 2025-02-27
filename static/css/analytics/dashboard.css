@@ -1,0 +1,420 @@
+.analytics-dashboard {
+    min-height: 100vh;
+    background: var(--gray-50);
+}
+
+/* Фильтры */
+.dashboard-filters {
+    background: white;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 2rem;
+}
+
+.filters-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Секции */
+.dashboard-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Графики */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1.5rem;
+}
+
+/* Статистика */
+.stats-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.stat-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 0.25rem;
+}
+
+.stat-content span {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+/* Таблица эффективности */
+.performance-table {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.conversion-bar {
+    position: relative;
+    height: 24px;
+    background: var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.conversion-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: var(--progress);
+    background: var(--primary-color);
+    border-radius: 12px;
+}
+
+.conversion-bar span {
+    position: relative;
+    z-index: 1;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    line-height: 24px;
+}
+
+/* Анализ товаров */
+.product-analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.product-card {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.product-image,
+.product-image-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+.product-image-placeholder {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+}
+
+.product-details h4 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gray-900);
+    margin: 0 0 0.25rem;
+}
+
+.product-details .category {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.product-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.stat .value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .chart-container {
+        height: 300px;
+    }
+
+    .product-analysis-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+
+
+/* Фильтры */
+.dashboard-filters {
+    background: white;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 2rem;
+}
+
+.filters-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Секции */
+.dashboard-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+/* Графики */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 1.5rem;
+}
+
+/* Статистика */
+.stats-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.75rem;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.stat-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 0.25rem;
+}
+
+.stat-content span {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+/* Таблица эффективности */
+.performance-table {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.conversion-bar {
+    position: relative;
+    height: 24px;
+    background: var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.conversion-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: var(--progress);
+    background: var(--primary-color);
+    border-radius: 12px;
+}
+
+.conversion-bar span {
+    position: relative;
+    z-index: 1;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    line-height: 24px;
+}
+
+/* Анализ товаров */
+.product-analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.product-card {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.product-image,
+.product-image-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+.product-image-placeholder {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+}
+
+.product-details h4 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gray-900);
+    margin: 0 0 0.25rem;
+}
+
+.product-details .category {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.product-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-bottom: 0.25rem;
+}
+
+.stat .value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+@media (max-width: 992px) {
+    .chart-container {
+        height: 300px;
+    }
+
+    .product-analysis-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+

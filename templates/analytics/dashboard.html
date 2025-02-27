@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Аналитика | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/analytics/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="analytics-dashboard">
+    <!-- Фильтры -->
+    <div class="dashboard-filters">
+        <div class="container">
+            <form class="filters-form" method="get">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Период</label>
+                        <select name="period" class="form-select" id="periodSelect">
+                            <option value="today">Сегодня</option>
+                            <option value="week">Неделя</option>
+                            <option value="month">Месяц</option>
+                            <option value="quarter">Квартал</option>
+                            <option value="year">Год</option>
+                            <option value="custom">Произвольный период</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 date-range" style="display: none;">
+                        <label class="form-label">С</label>
+                        <input type="date" name="date_from" class="form-control">
+                    </div>
+                    <div class="col-md-3 date-range" style="display: none;">
+                        <label class="form-label">По</label>
+                        <input type="date" name="date_to" class="form-control">
+                    </div>
+                    <div class="col-md-2 align-self-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sync-alt me-1"></i> Обновить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Основные показатели -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Основные показатели</h2>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="downloadReport">
+                    <i class="fas fa-download me-1"></i> Скачать отчет
+                </button>
+            </div>
+
+            <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>{{ trading_volume|floatformat:2 }} ₽</h4>
+                        <span>Объем торгов</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>{{ orders_count }}</h4>
+                        <span>Количество заказов</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>{{ active_users }}</h4>
+                        <span>Активных пользователей</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h4>{{ conversion_rate|floatformat:1 }}%</h4>
+                        <span>Конверсия</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- График динамики продаж -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Динамика продаж</h2>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-view="daily">
+                        День
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-view="weekly">
+                        Неделя
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-view="monthly">
+                        Месяц
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Топ продавцов -->
+            <div class="col-lg-6">
+                <div class="dashboard-section h-100">
+                    <div class="section-header">
+                        <h2>Топ продавцов</h2>
+                    </div>
+                    <div class="performance-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Продавец</th>
+                                    <th>Продажи</th>
+                                    <th>Конверсия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for seller in top_sellers %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if seller.avatar %}
+                                                <img src="{{ seller.avatar.url }}" class="avatar" alt="{{ seller.name }}">
+                                            {% else %}
+                                                <div class="avatar bg-primary text-white d-flex align-items-center justify-content-center">
+                                                    {{ seller.name|first }}
+                                                </div>
+                                            {% endif %}
+                                            <span>{{ seller.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ seller.sales|floatformat:2 }} ₽</td>
+                                    <td>
+                                        <div class="conversion-bar" style="--progress: {{ seller.conversion }}%">
+                                            <span>{{ seller.conversion }}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Анализ товаров -->
+            <div class="col-lg-6">
+                <div class="dashboard-section h-100">
+                    <div class="section-header">
+                        <h2>Популярные товары</h2>
+                    </div>
+                    <div class="product-analysis-grid">
+                        {% for product in top_products %}
+                        <div class="product-card">
+                            <div class="product-info">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="product-image-placeholder">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="product-details">
+                                    <h4>{{ product.name }}</h4>
+                                    <span class="category">{{ product.category.name }}</span>
+                                </div>
+                            </div>
+                            <div class="product-stats">
+                                <div class="stat">
+                                    <span class="label">Продажи</span>
+                                    <span class="value">{{ product.sales_count }}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Выручка</span>
+                                    <span class="value">{{ product.revenue|floatformat:2 }} ₽</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Остаток</span>
+                                    <span class="value">{{ product.stock }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/analytics/dashboard.js' %}"></script>
+{% endblock %}
