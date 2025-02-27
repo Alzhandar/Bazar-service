@@ -117,10 +117,10 @@ docker-compose up -d
 ## 📊 Скриншоты
 
 <div align="center">
-  <img src="media/api1.png" alt="Dashboard" width="400"/>
-  <img src="media/api2.png" alt="Dashboard" width="400"/>
-  <img src="media/api3.png" alt="Dashboard" width="400"/>
-  <img src="media/api4.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api1.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api2.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api3.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api4.png" alt="Dashboard" width="400"/>
 </div>
 
 ## 📈 Архитектура проекта
