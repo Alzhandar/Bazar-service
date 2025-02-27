@@ -13,7 +13,7 @@
 - Живая версия: [Bazar-service](https://dolphin-app-zscjm.ondigitalocean.app/)
 
 <div align="center">
-  <img src="docs/images/preview.png" alt="Bazar-service Preview" width="800"/>
+  <img src="static/images/logo.svg" alt="Bazar-service Preview" width="800"/>
 </div>
 
 ##  Описание проекта
@@ -27,7 +27,7 @@ Bazar-service - современная платформа электронной
 - Корзина покупок с сохранением между сессиями
 
 <div align="center">
-  <img src="media/readme/user_list.png" alt="User Features" width="600"/>
+  <img src="media/readme/users_list.png" alt="User Features" width="600"/>
   <img src="media/readme/about_product.png" alt="User Features" width="600"/>
 </div>
 
