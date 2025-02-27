@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from .models import SalesOrder, SalesOrderItem, Invoice, Product  
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -17,7 +18,32 @@ from io import BytesIO
 from .models import SalesOrder, SalesOrderItem, Invoice
 from .serializers import SalesOrderSerializer, InvoiceSerializer
 from users.permissions import IsSales, IsAdmin
+from django.forms import inlineformset_factory
+from django import forms
 
+OrderItemFormSet = inlineformset_factory(
+    SalesOrder,
+    SalesOrderItem,
+    fields=['product', 'quantity', 'unit_price'],  
+    extra=1,
+    min_num=1,
+    validate_min=True,
+    max_num=10,
+    widgets={
+        'unit_price': forms.NumberInput(attrs={  
+            'class': 'form-control price-input',
+            'step': '0.01',
+            'min': '0'
+        }),
+        'quantity': forms.NumberInput(attrs={
+            'class': 'form-control quantity-input',
+            'min': '1'
+        }),
+        'product': forms.Select(attrs={
+            'class': 'form-select product-select'
+        })
+    }
+)
 
 class SalesOrderViewSet(viewsets.ModelViewSet):
     serializer_class = SalesOrderSerializer
@@ -83,20 +109,45 @@ class SalesOrderDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['items'] = self.object.items.all()
         return context
-
+    
 class SalesOrderCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = SalesOrder
     template_name = 'sales/order_form.html'
     fields = ['customer', 'notes']
-    success_url = reverse_lazy('sales-order-list')
+    
+    def get_success_url(self):
+        return reverse_lazy('sales:order-list') 
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['products'] = Product.objects.filter(is_active=True) 
+        
+        if self.request.POST:
+            context['formset'] = OrderItemFormSet(self.request.POST)
+        else:
+            context['formset'] = OrderItemFormSet()
+        
+        return context
 
     def test_func(self):
         return self.request.user.role in ['admin', 'sales']
 
     def form_valid(self, form):
-        form.instance.sales_rep = self.request.user
-        return super().form_valid(form)
-
+        context = self.get_context_data()
+        formset = context['formset']
+        
+        if formset.is_valid():
+            self.object = form.save(commit=False)
+            self.object.sales_rep = self.request.user
+            self.object.save()
+            
+            formset.instance = self.object
+            formset.save()
+            
+            return redirect(self.get_success_url())
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+        
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = 'sales/invoice_list.html'
@@ -149,3 +200,25 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
                 return response
             return HttpResponse("Error generating PDF", status=500)
         return super().get(request, *args, **kwargs)
+    
+class SalesOrderEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = SalesOrder
+    template_name = 'sales/order_form.html'
+    fields = ['customer', 'notes', 'status']
+    context_object_name = 'order'
+
+    def test_func(self):
+        return self.request.user.role == 'admin'
+
+    def get_success_url(self):
+        messages.success(self.request, 'Заказ успешно обновлен')
+        return reverse_lazy('sales:order-detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.logs.create(
+            user=self.request.user,
+            action='edit',
+            message=f'Заказ отредактирован пользователем {self.request.user.get_full_name()}'
+        )
+        return response

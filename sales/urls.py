@@ -7,7 +7,9 @@ from .views import (
     SalesOrderDetailView,
     SalesOrderCreateView,
     InvoiceListView,
-    InvoiceDetailView
+    InvoiceDetailView,
+    SalesOrderEditView,
+    
 )
 
 app_name = 'sales'
@@ -26,6 +28,7 @@ web_urls = [
     path('orders/create/', SalesOrderCreateView.as_view(), name='order-create'),
     path('invoices/', InvoiceListView.as_view(), name='invoice-list'),
     path('invoices/<int:pk>/', InvoiceDetailView.as_view(), name='invoice-detail'),
+    path('orders/<int:pk>/edit/', SalesOrderEditView.as_view(), name='order-edit'),
     path('invoices/<int:pk>/download/', 
          InvoiceDetailView.as_view(template_name='sales/invoice_pdf.html'), 
          name='invoice-pdf'),

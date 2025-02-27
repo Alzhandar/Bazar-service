@@ -30,6 +30,7 @@ class SalesOrderItem(models.Model):
     sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(validators=[MinValueValidator(1)])
+    
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 

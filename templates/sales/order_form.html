@@ -13,7 +13,7 @@
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
             <li class="breadcrumb-item"><a href="{% url 'sales:order-list' %}">Заказы</a></li>
             <li class="breadcrumb-item active">
-                {% if order %}Редактирование{% else %}Создание{% endif %}
+                {% if order %}Редактирование{% else %}Создание{% endif %} заказа
             </li>
         </ol>
     </nav>
@@ -39,14 +39,22 @@
                 <div class="card-body">
                     <form method="post" id="orderForm" novalidate>
                         {% csrf_token %}
-                        
-                        <!-- Клиент и менеджер -->
+                        {{ formset.management_form }}
+
+                        <!-- Основная информация -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                {% include 'components/forms/select_field.html' with field=form.customer %}
+                                <label class="form-label">Клиент *</label>
+                                {% render_field form.customer class="form-select" %}
+                                {% if form.customer.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.customer.errors|join:", " }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                {% include 'components/forms/select_field.html' with field=form.sales_rep %}
+                                <label class="form-label">Статус</label>
+                                {% render_field form.status class="form-select" %}
                             </div>
                         </div>
 
@@ -55,8 +63,7 @@
                             <div class="card-header bg-transparent">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">Товары</h5>
-                                    <button type="button" class="btn btn-primary btn-sm" 
-                                            onclick="addOrderItem()">
+                                    <button type="button" class="btn btn-primary btn-sm" id="addItemBtn">
                                         <i class="fas fa-plus me-1"></i> Добавить товар
                                     </button>
                                 </div>
@@ -64,41 +71,55 @@
                             
                             <div class="card-body p-0">
                                 <div id="orderItems">
-                                    {{ formset.management_form }}
                                     {% for form in formset %}
                                         <div class="order-item border-bottom p-3">
+                                            {{ form.id }}
                                             <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    {% include 'components/forms/select_field.html' with field=form.product %}
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Товар *</label>
+                                                    {% render_field form.product class="form-select product-select" %}
+                                                    {% if form.product.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form.product.errors|join:", " }}
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="col-md-3">
-                                                    {% include 'components/forms/input_field.html' with field=form.quantity %}
+                                                    <label class="form-label">Количество *</label>
+                                                    {% render_field form.quantity class="form-control quantity-input" min="1" value="1" %}
+                                                    {% if form.quantity.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form.quantity.errors|join:", " }}
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
-                                                <div class="col-md-2">
-                                                    {% include 'components/forms/input_field.html' with field=form.price %}
-                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Цена *</label>
+                                                    {% render_field form.unit_price class="form-control price-input" step="0.01" %}
+                                                    {% if form.unit_price.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form.unit_price.errors|join:", " }}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>                                                
                                                 <div class="col-md-1">
                                                     <button type="button" 
-                                                            class="btn btn-outline-danger btn-sm mt-4"
-                                                            onclick="removeOrderItem(this)">
+                                                            class="btn btn-outline-danger btn-sm mt-4 remove-item-btn">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
                                             </div>
-                                            {% for hidden in form.hidden_fields %}
-                                                {{ hidden }}
-                                            {% endfor %}
                                         </div>
                                     {% endfor %}
                                 </div>
                                 
                                 <div class="p-3 bg-light">
-                                    <div class="row">
+                                    <div class="row align-items-center">
                                         <div class="col-md-9 text-end">
-                                            <h5>Итого:</h5>
+                                            <h5 class="mb-0">Итого:</h5>
                                         </div>
-                                        <div class="col-md-2">
-                                            <h5 id="totalAmount">$0.00</h5>
+                                        <div class="col-md-3">
+                                            <h5 class="mb-0" id="totalAmount">0.00 ₽</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +128,8 @@
 
                         <!-- Комментарий -->
                         <div class="mb-4">
-                            {% include 'components/forms/input_field.html' with field=form.notes %}
+                            <label class="form-label">Комментарий</label>
+                            {% render_field form.notes class="form-control" rows="3" %}
                         </div>
 
                         <!-- Кнопки -->
@@ -127,35 +149,40 @@
     </div>
 </div>
 
-<!-- Шаблон для нового товара -->
 <template id="orderItemTemplate">
     <div class="order-item border-bottom p-3">
         <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Товар</label>
-                <select name="items-__prefix__-product" class="form-select product-select">
+            <div class="col-md-5">
+                <label class="form-label">Товар *</label>
+                <select name="items-__prefix__-product" class="form-select product-select" required>
                     <option value="">Выберите товар</option>
                     {% for product in products %}
                         <option value="{{ product.id }}" 
-                                data-price="{{ product.price }}">
+                                data-price="{{ product.price|floatformat:2 }}"
+                                data-stock="{{ product.stock }}">
                             {{ product.name }}
+                            {% if product.category %}
+                                ({{ product.category.name }})
+                            {% endif %}
                         </option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label">Количество</label>
+                <label class="form-label">Количество *</label>
                 <input type="number" name="items-__prefix__-quantity" 
-                       class="form-control quantity-input" min="1" value="1">
+                       class="form-control quantity-input" 
+                       min="1" value="1" required>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Цена</label>
-                <input type="number" name="items-__prefix__-price" 
-                       class="form-control price-input" step="0.01">
+            <div class="col-md-3">
+                <label class="form-label">Цена *</label>
+                <input type="number" name="items-__prefix__-unit_price" 
+                       class="form-control price-input" 
+                       step="0.01" required>
             </div>
             <div class="col-md-1">
-                <button type="button" class="btn btn-outline-danger btn-sm mt-4"
-                        onclick="removeOrderItem(this)">
+                <button type="button" 
+                        class="btn btn-outline-danger btn-sm mt-4 remove-item-btn">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -165,74 +192,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-let itemsCount = {{ formset.total_form_count }};
-const maxItems = {{ formset.max_num }};
-
-function addOrderItem() {
-    if (itemsCount >= maxItems) {
-        alert('Достигнуто максимальное количество товаров');
-        return;
-    }
-
-    const template = document.getElementById('orderItemTemplate');
-    const container = document.getElementById('orderItems');
-    const clone = template.content.cloneNode(true);
-    
-    clone.querySelectorAll('[name*="__prefix__"]').forEach(element => {
-        element.name = element.name.replace('__prefix__', itemsCount);
-        element.id = element.id.replace('__prefix__', itemsCount);
-    });
-    
-    container.appendChild(clone);
-    itemsCount++;
-    
-    document.getElementById('id_items-TOTAL_FORMS').value = itemsCount;
-    
-    initializeItemHandlers(container.lastElementChild);
-}
-
-function removeOrderItem(button) {
-    if (itemsCount <= 1) {
-        alert('Заказ должен содержать хотя бы один товар');
-        return;
-    }
-    
-    button.closest('.order-item').remove();
-    itemsCount--;
-    document.getElementById('id_items-TOTAL_FORMS').value = itemsCount;
-    calculateTotal();
-}
-
-function initializeItemHandlers(item) {
-    const productSelect = item.querySelector('.product-select');
-    const quantityInput = item.querySelector('.quantity-input');
-    const priceInput = item.querySelector('.price-input');
-    
-    productSelect.addEventListener('change', function() {
-        const option = this.options[this.selectedIndex];
-        if (option.dataset.price) {
-            priceInput.value = option.dataset.price;
-        }
-        calculateTotal();
-    });
-    
-    [quantityInput, priceInput].forEach(input => {
-        input.addEventListener('input', calculateTotal);
-    });
-}
-
-function calculateTotal() {
-    let total = 0;
-    document.querySelectorAll('.order-item').forEach(item => {
-        const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
-        const price = parseFloat(item.querySelector('.price-input').value) || 0;
-        total += quantity * price;
-    });
-    document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
-}
-
-document.querySelectorAll('.order-item').forEach(initializeItemHandlers);
-calculateTotal();
-</script>
+<script src="{% static 'js/sales/order_form.js' %}"></script>
 {% endblock %}
