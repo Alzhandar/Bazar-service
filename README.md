@@ -9,17 +9,17 @@
   [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 </div>
 
-## 🌐 Демо
+## Демо
 - Живая версия: [Bazar-service](https://dolphin-app-zscjm.ondigitalocean.app/)
 
 <div align="center">
   <img src="docs/images/preview.png" alt="Bazar-service Preview" width="800"/>
 </div>
 
-## 📝 Описание проекта
+##  Описание проекта
 Bazar-service - современная платформа электронной коммерции, предоставляющая пользователям возможность легко покупать и продавать товары. Наше приложение сочетает в себе интуитивно понятный интерфейс с мощной функциональностью для эффективного ведения онлайн-торговли.
 
-## ✨ Основные возможности
+## Основные возможности
 
 ### 👥 Для пользователей
 - Регистрация и авторизация через email/пароль или социальные сети
@@ -27,8 +27,8 @@ Bazar-service - современная платформа электронной
 - Корзина покупок с сохранением между сессиями
 
 <div align="center">
-  <img src="meadia/readme/user_list.png" alt="User Features" width="600"/>
-  <img src="meadia/readme/about_product.png" alt="User Features" width="600"/>
+  <img src="media/readme/user_list.png" alt="User Features" width="600"/>
+  <img src="media/readme/about_product.png" alt="User Features" width="600"/>
 </div>
 
 ### 🏪 Для продавцов
@@ -38,9 +38,9 @@ Bazar-service - современная платформа электронной
 - Система уведомлений о новых заказах
 
 <div align="center">
-  <img src="meadia/readme/create_product.png" alt="Seller Features" width="600"/>
-  <img src="meadia/readme/orders_list.png" alt="Seller Features" width="600"/>
-  <img src="meadia/readme/product_list.png" alt="Seller Features" width="600"/>
+  <img src="media/readme/create_product.png" alt="Seller Features" width="600"/>
+  <img src="media/readme/orders_list.png" alt="Seller Features" width="600"/>
+  <img src="media/readme/product_list.png" alt="Seller Features" width="600"/>
 
 </div>
 
@@ -117,10 +117,10 @@ docker-compose up -d
 ## 📊 Скриншоты
 
 <div align="center">
-  <img src="docs/images/screenshot-1.png" alt="Dashboard" width="400"/>
-  <img src="docs/images/screenshot-2.png" alt="Product List" width="400"/>
-  <img src="docs/images/screenshot-3.png" alt="Order Details" width="400"/>
-  <img src="docs/images/screenshot-4.png" alt="Analytics" width="400"/>
+  <img src="media/api1.png" alt="Dashboard" width="400"/>
+  <img src="media/api2.png" alt="Dashboard" width="400"/>
+  <img src="media/api3.png" alt="Dashboard" width="400"/>
+  <img src="media/api4.png" alt="Dashboard" width="400"/>
 </div>
 
 ## 📈 Архитектура проекта
