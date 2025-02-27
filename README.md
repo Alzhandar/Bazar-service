@@ -17,6 +17,7 @@ Bazar-service - современная платформа электронной
 <div align="center">
   <img src="media/readme/users_list.png" alt="User Features" width="600"/>
   <img src="media/readme/about_product.png" alt="User Features" width="600"/>
+<img src="media/readme/about_order.png" alt="User Features" width="600"/>
 </div>
 
 ### 🏪 Для продавцов
@@ -30,6 +31,15 @@ Bazar-service - современная платформа электронной
   <img src="media/readme/orders_list.png" alt="Seller Features" width="600"/>
   <img src="media/readme/product_list.png" alt="Seller Features" width="600"/>
 
+</div>
+
+## 📊 Скриншоты
+
+<div align="center">
+  <img src="media/readme/api1.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api2.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api3.png" alt="Dashboard" width="400"/>
+  <img src="media/readme/api4.png" alt="Dashboard" width="400"/>
 </div>
 
 ## 🛠 Технологический стек
@@ -102,14 +112,6 @@ python manage.py runserver
 docker-compose up -d
 ```
 
-## 📊 Скриншоты
-
-<div align="center">
-  <img src="media/readme/api1.png" alt="Dashboard" width="400"/>
-  <img src="media/readme/api2.png" alt="Dashboard" width="400"/>
-  <img src="media/readme/api3.png" alt="Dashboard" width="400"/>
-  <img src="media/readme/api4.png" alt="Dashboard" width="400"/>
-</div>
 
 
 ## 🙏 Благодарности
