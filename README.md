@@ -1,7 +1,7 @@
 # Bazar-service 🛍️
 
 ## Демо
-- Живая версия: [Bazar-service](https://dolphin-app-zscjm.ondigitalocean.app/)
+- Ссылка на Deploy: [Bazar-service](https://dolphin-app-zscjm.ondigitalocean.app/)
 
 
 ##  Описание проекта
