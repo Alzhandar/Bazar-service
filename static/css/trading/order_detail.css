@@ -1,0 +1,360 @@
+.order-detail-wrapper {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.order-detail-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr 350px;
+}
+
+.order-main-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.order-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.order-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.order-title h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--gray-900);
+}
+
+.order-type {
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+}
+
+.order-type.buy {
+    background: var(--type-buy-bg);
+    color: var(--type-buy-color);
+}
+
+.order-type.sell {
+    background: var(--type-sell-bg);
+    color: var(--type-sell-color);
+}
+
+.order-meta {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-500);
+    font-size: 0.875rem;
+}
+
+.order-status {
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+}
+
+.status-pending {
+    background: var(--status-pending-bg);
+    color: var(--status-pending-color);
+}
+
+.status-completed {
+    background: var(--status-completed-bg);
+    color: var(--status-completed-color);
+}
+
+.status-cancelled {
+    background: var(--status-cancelled-bg);
+    color: var(--status-cancelled-color);
+}
+
+.order-content {
+    padding: 1.5rem;
+}
+
+/* Секция товара */
+.product-section {
+    margin-bottom: 2rem;
+}
+
+.product-section h2,
+.details-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.product-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+}
+
+.product-image,
+.product-image-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+.product-image-placeholder {
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+    font-size: 2rem;
+}
+
+.product-info h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem;
+}
+
+.product-info .category {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.product-info .description {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Секция деталей */
+.details-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+}
+
+.detail-item.total {
+    background: var(--primary-color);
+}
+
+.detail-item.total .detail-label,
+.detail-item.total .detail-value {
+    color: white;
+}
+
+.detail-label {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.order-actions {
+    padding: 1.5rem;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Сайдбар с транзакциями */
+.transactions-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+}
+
+.transactions-card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 1rem;
+}
+
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.transaction-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+}
+
+.transaction-info {
+    flex: 1;
+}
+
+.transaction-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.transaction-id {
+    font-weight: 500;
+    color: var(--gray-900);
+}
+
+.transaction-date {
+    color: var(--gray-500);
+    font-size: 0.875rem;
+}
+
+.transaction-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.transaction-details .amount {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.transaction-details .quantity {
+    color: var(--gray-500);
+}
+
+.transactions-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gray-400);
+}
+
+.transactions-empty i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.transactions-empty p {
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .order-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-detail-wrapper {
+        padding: 1rem;
+    }
+
+    .order-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .order-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .product-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .product-image,
+    .product-image-placeholder {
+        width: 160px;
+        height: 160px;
+    }
+}
+
+/* Темная тема */
+[data-theme="dark"] {
+    .order-main-card,
+    .transactions-card {
+        background: var(--gray-800);
+    }
+
+    .order-header {
+        border-color: var(--gray-700);
+    }
+
+    .order-title h1 {
+        color: white;
+    }
+
+    .product-card,
+    .detail-item,
+    .transaction-item {
+        background: var(--gray-900);
+    }
+
+    .product-image-placeholder {
+        background: var(--gray-700);
+    }
+
+    .product-info h3 {
+        color: white;
+    }
+
+    .detail-value {
+        color: var(--gray-100);
+    }
+
+    .transaction-id {
+        color: var(--gray-100);
+    }
+
+    .order-actions {
+        border-color: var(--gray-700);
+    }
+}

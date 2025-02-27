@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
 from users.permissions import IsAdmin
+from django.contrib import messages
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -81,10 +82,17 @@ class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Product
     template_name = 'products/product_form.html'
     fields = ['name', 'category', 'description', 'price', 'stock', 'image']
-    success_url = reverse_lazy('product-list')
-
+    
     def test_func(self):
         return self.request.user.role == 'admin'
+
+    def get_success_url(self):
+        messages.success(self.request, 'Продукт успешно создан')
+        return reverse_lazy('products:product-list') 
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
 
 class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
@@ -95,4 +103,23 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user.role == 'admin'
 
     def get_success_url(self):
-        return reverse_lazy('product-detail', kwargs={'pk': self.object.pk})
+        messages.success(self.request, 'Продукт успешно обновлен')
+        return reverse_lazy('products:product-detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        return response
+    
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Product
+    success_url = reverse_lazy('products:product-list')
+    
+    def test_func(self):
+        return self.request.user.role == 'admin'
+    
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Продукт успешно удален')
+        return super().delete(request, *args, **kwargs)

@@ -1,0 +1,273 @@
+.create-order-wrapper {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.create-order-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr 350px;
+}
+
+.card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.card-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.card-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Форма заказа */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 1rem;
+}
+
+.order-type-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.type-option {
+    cursor: pointer;
+    margin: 0;
+}
+
+.type-option input {
+    display: none;
+}
+
+.type-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.type-option input:checked + .type-content {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-light);
+    outline: none;
+}
+
+.invalid-feedback {
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Итоговая сумма */
+.order-summary {
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    color: var(--gray-600);
+}
+
+.summary-row.total {
+    border-top: 1px solid var(--gray-200);
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+/* Информация о рынке */
+.market-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 0.75rem;
+}
+
+.stat-label {
+    display: block;
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.market-chart {
+    height: 300px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-100);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .create-order-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .create-order-wrapper {
+        padding: 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .market-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Темная тема */
+[data-theme="dark"] {
+    .card {
+        background: var(--gray-800);
+    }
+
+    .card-header {
+        border-color: var(--gray-700);
+    }
+
+    .card-header h1,
+    .card-header h2 {
+        color: white;
+    }
+
+    .form-section h2 {
+        color: var(--gray-300);
+    }
+
+    .form-group label {
+        color: var(--gray-300);
+    }
+
+    .form-control {
+        background: var(--gray-900);
+        border-color: var(--gray-700);
+        color: white;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+    }
+
+    .type-content {
+        border-color: var(--gray-700);
+        color: var(--gray-300);
+    }
+
+    .order-summary {
+        background: var(--gray-900);
+    }
+
+    .summary-row {
+        color: var(--gray-400);
+    }
+
+    .summary-row.total {
+        border-color: var(--gray-700);
+        color: white;
+    }
+
+    .stat-item {
+        background: var(--gray-900);
+    }
+
+    .stat-value {
+        color: white;
+    }
+
+    .form-actions {
+        border-color: var(--gray-700);
+    }
+}

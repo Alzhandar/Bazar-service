@@ -122,7 +122,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <form action="{% url 'products:product-delete' product.id %}" method="post" style="display: inline;">
+                    <form id="deleteProductForm" action="{% url 'products:product-delete' product.id %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger">Удалить</button>
                     </form>

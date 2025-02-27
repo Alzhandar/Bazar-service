@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои заказы | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/trading/order_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="orders-wrapper">
+    <div class="orders-header">
+        <h1 class="orders-title">Мои заказы</h1>
+        <div class="orders-actions">
+            <a href="{% url 'trading:order-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Новый заказ
+            </a>
+        </div>
+    </div>
+
+    <div class="orders-filters">
+        <form method="get" class="filters-form">
+            <div class="filters-group">
+                <select name="status" class="form-select">
+                    <option value="">Все статусы</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Ожидает</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Выполнен</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Отменён</option>
+                </select>
+            </div>
+            <div class="filters-group">
+                <select name="type" class="form-select">
+                    <option value="">Все типы</option>
+                    <option value="buy" {% if type_filter == 'buy' %}selected{% endif %}>Покупка</option>
+                    <option value="sell" {% if type_filter == 'sell' %}selected{% endif %}>Продажа</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-filter"></i>
+                Применить
+            </button>
+        </form>
+    </div>
+
+    {% if orders %}
+        <div class="orders-grid">
+            {% for order in orders %}
+                <div class="order-card {% if order.status == 'completed' %}completed{% elif order.status == 'cancelled' %}cancelled{% endif %}">
+                    <div class="order-header">
+                        <span class="order-type {% if order.order_type == 'buy' %}buy{% else %}sell{% endif %}">
+                            {% if order.order_type == 'buy' %}
+                                <i class="fas fa-shopping-cart"></i> Покупка
+                            {% else %}
+                                <i class="fas fa-tag"></i> Продажа
+                            {% endif %}
+                        </span>
+                        <span class="order-date">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+                    </div>
+                    
+                    <div class="order-body">
+                        <div class="order-product">
+                            {% if order.product.image %}
+                                <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}" class="product-image">
+                            {% else %}
+                                <div class="product-image-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                            {% endif %}
+                            <div class="product-info">
+                                <h3 class="product-name">{{ order.product.name }}</h3>
+                                <p class="product-category">{{ order.product.category.name }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="order-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Количество:</span>
+                                <span class="detail-value">{{ order.quantity }} шт.</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Цена:</span>
+                                <span class="detail-value">{{ order.price|floatformat:2 }} ₽</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Сумма:</span>
+                                <span class="detail-value total">{{ order.total_amount|floatformat:2 }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <span class="order-status status-{{ order.status }}">
+                            {% if order.status == 'pending' %}
+                                <i class="fas fa-clock"></i> Ожидает
+                            {% elif order.status == 'completed' %}
+                                <i class="fas fa-check-circle"></i> Выполнен
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Отменён
+                            {% endif %}
+                        </span>
+                        <div class="order-actions">
+                            <a href="{% url 'trading:order-detail' order.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                                Детали
+                            </a>
+                            {% if order.status == 'pending' %}
+                                <form method="post" action="{% url 'trading:order-cancel' order.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-times"></i>
+                                        Отменить
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% include 'includes/pagination.html' %}
+    {% else %}
+        <div class="orders-empty">
+            <div class="empty-icon">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h3>У вас пока нет заказов</h3>
+            <p>Создайте свой первый заказ, чтобы начать торговлю</p>
+            <a href="{% url 'trading:order-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Создать заказ
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,38 +1,37 @@
-<div class="card h-100 shadow-sm">
-    {% if product.image %}
-        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"
-             style="height: 200px; object-fit: cover;">
-    {% else %}
-        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-             style="height: 200px;">
-            <i class="fas fa-box fa-3x text-muted"></i>
-        </div>
-    {% endif %}
-
+<div class="card h-100 product-card">
+    <div class="card-img-wrapper">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+        {% else %}
+            <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+            </div>
+        {% endif %}
+    </div>
     <div class="card-body">
-        <h5 class="card-title text-truncate">{{ product.name }}</h5>
-        <p class="card-text small text-muted">
-            {{ product.description|truncatewords:20 }}
-        </p>
-        
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <span class="h5 mb-0">${{ produ3t.price|floatformat:2 }}</span>
-            <span class="badge {% if product.stock > 10 %}bg-success{% elif product.stock > 0 %}bg-warning{% else %}bg-danger{% endif %}">
-                {{ product.stock }} в наличии
-            </span>
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text text-truncate">{{ product.description }}</p>
+        <div class="product-details">
+            <div class="price">
+                {{ product.price|floatformat:2 }} тг.
+            </div>
+            <div class="stock {% if product.stock < 5 %}low-stock{% endif %}">
+                {% if product.stock > 0 %}
+                    В наличии: {{ product.stock }} шт.
+                {% else %}
+                    Нет в наличии
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    <div class="card-footer bg-transparent border-top-0">
-        <div class="d-grid gap-2">
-            <a href="{% url 'products:product-detail' product.id %}" 
-               class="btn btn-primary">
-                <i class="fas fa-info-circle me-1"></i> Подробнее
+    <div class="card-footer bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'products:product-detail' product.pk %}" class="btn btn-primary btn-sm">
+                Подробнее
             </a>
             {% if user.role == 'admin' %}
-                <a href="{% url 'products:product-edit' product.id %}" 
-                   class="btn btn-outline-secondary">
-                    <i class="fas fa-edit me-1"></i> Редактировать
+                <a href="{% url 'products:product-edit' product.pk %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-edit"></i>
                 </a>
             {% endif %}
         </div>

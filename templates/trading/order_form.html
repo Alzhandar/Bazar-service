@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Создание заказа | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/trading/order_create.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="create-order-wrapper">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'trading:order-list' %}">Мои заказы</a></li>
+            <li class="breadcrumb-item active">Создание заказа</li>
+        </ol>
+    </nav>
+
+    <div class="create-order-grid">
+        <div class="order-form-section">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Создание заказа</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="order-form" id="orderForm">
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <h2>Тип заказа</h2>
+                            <div class="order-type-selector">
+                                <label class="type-option">
+                                    <input type="radio" name="order_type" value="buy" checked>
+                                    <span class="type-content">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <span>Покупка</span>
+                                    </span>
+                                </label>
+                                <label class="type-option">
+                                    <input type="radio" name="order_type" value="sell">
+                                    <span class="type-content">
+                                        <i class="fas fa-tag"></i>
+                                        <span>Продажа</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h2>Детали заказа</h2>
+                            <div class="form-group">
+                                <label for="{{ form.product.id_for_label }}">Товар</label>
+                                {% render_field form.product class="form-control" %}
+                                {% if form.product.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.product.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="{{ form.quantity.id_for_label }}">Количество</label>
+                                    {% render_field form.quantity class="form-control" min="1" %}
+                                    {% if form.quantity.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.quantity.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.price.id_for_label }}">Цена за единицу</label>
+                                    {% render_field form.price class="form-control" min="0.01" step="0.01" %}
+                                    {% if form.price.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.price.errors|join:", " }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h2>Итого</h2>
+                            <div class="order-summary">
+                                <div class="summary-row">
+                                    <span>Количество:</span>
+                                    <span id="totalQuantity">0 шт.</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Цена за единицу:</span>
+                                    <span id="unitPrice">0.00 ₽</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Общая сумма:</span>
+                                    <span id="totalAmount">0.00 ₽</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{% url 'trading:order-list' %}" class="btn btn-outline-secondary">
+                                Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i>
+                                Создать заказ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="market-info-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Информация о рынке</h2>
+                </div>
+                <div class="card-body">
+                    <div class="market-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Средняя цена</span>
+                            <span class="stat-value" id="averagePrice">—</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Мин. цена</span>
+                            <span class="stat-value" id="minPrice">—</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Макс. цена</span>
+                            <span class="stat-value" id="maxPrice">—</span>
+                        </div>
+                    </div>
+
+                    <div class="market-chart">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/trading/order_create.js' %}"></script>
+{% endblock %}

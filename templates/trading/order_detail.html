@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заказ №{{ order.id }} | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/trading/order_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-wrapper">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'trading:order-list' %}">Мои заказы</a>
+            </li>
+            <li class="breadcrumb-item active">Заказ №{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="order-detail-grid">
+        <div class="order-main-card">
+            <div class="order-header">
+                <div class="order-title">
+                    <h1>Заказ №{{ order.id }}</h1>
+                    <span class="order-type {% if order.order_type == 'buy' %}buy{% else %}sell{% endif %}">
+                        {% if order.order_type == 'buy' %}
+                            <i class="fas fa-shopping-cart"></i> Покупка
+                        {% else %}
+                            <i class="fas fa-tag"></i> Продажа
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="order-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        {{ order.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                    <div class="meta-item">
+                        <span class="order-status status-{{ order.status }}">
+                            {% if order.status == 'pending' %}
+                                <i class="fas fa-clock"></i> Ожидает
+                            {% elif order.status == 'completed' %}
+                                <i class="fas fa-check-circle"></i> Выполнен
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Отменён
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-content">
+                <div class="product-section">
+                    <h2>Информация о товаре</h2>
+                    <div class="product-card">
+                        {% if order.product.image %}
+                            <img src="{{ order.product.image.url }}" alt="{{ order.product.name }}" class="product-image">
+                        {% else %}
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-box"></i>
+                            </div>
+                        {% endif %}
+                        <div class="product-info">
+                            <h3>{{ order.product.name }}</h3>
+                            <p class="category">{{ order.product.category.name }}</p>
+                            <p class="description">{{ order.product.description }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <h2>Детали заказа</h2>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Количество</span>
+                            <span class="detail-value">{{ order.quantity }} шт.</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Цена за единицу</span>
+                            <span class="detail-value">{{ order.price|floatformat:2 }} ₽</span>
+                        </div>
+                        <div class="detail-item total">
+                            <span class="detail-label">Общая сумма</span>
+                            <span class="detail-value">{{ order.total_amount|floatformat:2 }} ₽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if order.status == 'pending' %}
+                <div class="order-actions">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <i class="fas fa-times"></i>
+                        Отменить заказ
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="order-sidebar">
+            <div class="transactions-card">
+                <h2>Транзакции</h2>
+                {% if order.transactions.exists %}
+                    <div class="transactions-list">
+                        {% for transaction in order.transactions.all %}
+                            <div class="transaction-item">
+                                <div class="transaction-icon">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                                <div class="transaction-info">
+                                    <div class="transaction-header">
+                                        <span class="transaction-id">#{{ transaction.id }}</span>
+                                        <span class="transaction-date">{{ transaction.executed_at|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <span class="amount">{{ transaction.amount|floatformat:2 }} ₽</span>
+                                        <span class="quantity">{{ transaction.quantity }} шт.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="transactions-empty">
+                        <i class="fas fa-receipt"></i>
+                        <p>Нет транзакций</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if order.status == 'pending' %}
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение отмены</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите отменить этот заказ?</p>
+                    <p class="text-danger mb-0">Это действие нельзя отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Закрыть
+                    </button>
+                    <form action="{% url 'trading:order-cancel' order.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            Отменить заказ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

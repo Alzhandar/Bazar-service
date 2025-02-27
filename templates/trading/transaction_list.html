@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}История транзакций | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/trading/transaction_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="transactions-wrapper">
+    <div class="transactions-header">
+        <h1>История транзакций</h1>
+        <div class="transactions-summary">
+            <div class="summary-card income">
+                <i class="fas fa-arrow-down"></i>
+                <div class="summary-content">
+                    <span class="label">Получено</span>
+                    <span class="value">{{ total_received|floatformat:2 }} ₽</span>
+                </div>
+            </div>
+            <div class="summary-card expense">
+                <i class="fas fa-arrow-up"></i>
+                <div class="summary-content">
+                    <span class="label">Потрачено</span>
+                    <span class="value">{{ total_spent|floatformat:2 }} ₽</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="transactions-filters">
+        <form method="get" class="filters-form">
+            <div class="form-group">
+                <label for="date_from">От</label>
+                <input type="date" id="date_from" name="date_from" 
+                       class="form-control" value="{{ request.GET.date_from }}">
+            </div>
+            <div class="form-group">
+                <label for="date_to">До</label>
+                <input type="date" id="date_to" name="date_to" 
+                       class="form-control" value="{{ request.GET.date_to }}">
+            </div>
+            <div class="form-group">
+                <label for="type">Тип</label>
+                <select id="type" name="type" class="form-select">
+                    <option value="">Все типы</option>
+                    <option value="buy" {% if request.GET.type == 'buy' %}selected{% endif %}>Покупки</option>
+                    <option value="sell" {% if request.GET.type == 'sell' %}selected{% endif %}>Продажи</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i>
+                Применить
+            </button>
+        </form>
+    </div>
+
+    {% if transactions %}
+        <div class="transactions-timeline">
+            {% regroup transactions by executed_at|date:"d.m.Y" as transactions_by_date %}
+            {% for date in transactions_by_date %}
+                <div class="timeline-group">
+                    <div class="timeline-date">{{ date.grouper }}</div>
+                    <div class="timeline-items">
+                        {% for transaction in date.list %}
+                            <div class="transaction-card">
+                                <div class="transaction-icon {% if transaction.is_buyer %}expense{% else %}income{% endif %}">
+                                    <i class="fas {% if transaction.is_buyer %}fa-shopping-cart{% else %}fa-tag{% endif %}"></i>
+                                </div>
+                                <div class="transaction-content">
+                                    <div class="transaction-header">
+                                        <div class="transaction-info">
+                                            <h3>
+                                                {% if transaction.is_buyer %}Покупка{% else %}Продажа{% endif %}
+                                                {{ transaction.product.name }}
+                                            </h3>
+                                            <span class="transaction-meta">
+                                                {{ transaction.executed_at|time:"H:i" }}
+                                            </span>
+                                        </div>
+                                        <div class="transaction-amount {% if transaction.is_buyer %}expense{% else %}income{% endif %}">
+                                            {% if transaction.is_buyer %}-{% else %}+{% endif %}{{ transaction.amount|floatformat:2 }} ₽
+                                        </div>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <span class="quantity">{{ transaction.quantity }} шт.</span>
+                                        <span class="price">{{ transaction.price|floatformat:2 }} ₽/шт.</span>
+                                    </div>
+                                    <a href="{% url 'trading:order-detail' transaction.order.id %}" 
+                                       class="transaction-link">
+                                        Заказ #{{ transaction.order.id }}
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% include 'includes/pagination.html' %}
+    {% else %}
+        <div class="transactions-empty">
+            <div class="empty-icon">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <h3>Транзакции отсутствуют</h3>
+            <p>У вас пока нет завершенных транзакций</p>
+            <a href="{% url 'products:product-list' %}" class="btn btn-primary">
+                <i class="fas fa-shopping-cart"></i>
+                Начать торговлю
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
