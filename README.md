@@ -1,12 +1,5 @@
 # Bazar-service 🛍️
 
-<div align="center">  
-  [![Django](https://img.shields.io/badge/Django-4.2-green.svg)](https://www.djangoproject.com/)
-  [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
-  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://www.postgresql.org/)
-  [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-</div>
-
 ## Демо
 - Живая версия: [Bazar-service](https://dolphin-app-zscjm.ondigitalocean.app/)
 
