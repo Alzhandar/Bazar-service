@@ -1,8 +1,6 @@
 # Bazar-service 🛍️
 
-<div align="center">
-  <img src="docs/images/logo.png" alt="Bazar-service Logo" width="200"/>
-  
+<div align="center">  
   [![Django](https://img.shields.io/badge/Django-4.2-green.svg)](https://www.djangoproject.com/)
   [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
   [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://www.postgresql.org/)
