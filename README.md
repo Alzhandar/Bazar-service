@@ -71,7 +71,9 @@ Bazar-service - современная платформа электронной
 - Python 3.9+
 - PostgreSQL 13+
 - Redis
-- Node.js 14+
+- Django 
+- DRF
+- Deploy
 
 ### Локальная установка
 
