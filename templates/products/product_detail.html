@@ -3,132 +3,370 @@
 
 {% block title %}{{ product.name }} | {{ block.super }}{% endblock %}
 
+{% block extra_head %}
+<script src="https://js.stripe.com/v3/"></script>
+<link rel="stylesheet" href="{% static 'css/products/product-detail.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <nav aria-label="breadcrumb" class="mb-4">
+    <nav aria-label="breadcrumb" class="mb-4" itemscope itemtype="https://schema.org/BreadcrumbList">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'products:product-list' %}">Продукты</a></li>
-            <li class="breadcrumb-item active">{{ product.name }}</li>
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">Главная</span></a>
+                <meta itemprop="position" content="1" />
+            </li>
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'products:product-list' %}" itemprop="item"><span itemprop="name">Продукты</span></a>
+                <meta itemprop="position" content="2" />
+            </li>
+            <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">{{ product.name }}</span>
+                <meta itemprop="position" content="3" />
+            </li>
         </ol>
     </nav>
 
-    <div class="row g-4">
+    <!-- Карточка товара с микроразметкой Schema.org -->
+    <div class="row g-4" itemscope itemtype="https://schema.org/Product">
+        <!-- Галерея изображений -->
         <div class="col-md-5">
-            <div class="card shadow-sm">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" 
-                         alt="{{ product.name }}" style="object-fit: cover; height: 400px;">
-                {% else %}
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-                         style="height: 400px;">
-                        <i class="fas fa-box fa-5x text-muted"></i>
-                    </div>
-                {% endif %}
+            <div class="product-gallery card shadow-sm">
+                <div class="gallery-main position-relative">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" 
+                             class="card-img-top gallery-image" 
+                             alt="{{ product.name }}"
+                             itemprop="image"
+                             loading="lazy">
+                    {% else %}
+                        <div class="placeholder-image d-flex align-items-center justify-content-center bg-light">
+                            <i class="fas fa-box fa-5x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    {% if product.discount_percent %}
+                        <div class="discount-badge position-absolute top-0 start-0 m-3">
+                            -{{ product.discount_percent|floatformat:0 }}%
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
+        <!-- Информация о товаре -->
         <div class="col-md-7">
-            <div class="card shadow-sm">
-                <div class="card-header bg-transparent">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">{{ product.name }}</h4>
-                        {% if user.role == 'admin' %}
-                            <div class="btn-group">
-                                <a href="{% url 'products:product-edit' product.id %}" 
-                                   class="btn btn-outline-primary">
-                                    <i class="fas fa-edit me-1"></i> Редактировать
-                                </a>
-                                <button type="button" class="btn btn-outline-danger"
-                                        data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                    <i class="fas fa-trash me-1"></i> Удалить
-                                </button>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
+            <div class="product-info card shadow-sm">
                 <div class="card-body">
-                    <div class="row mb-4">
-                        <div class="col-sm-6">
-                            <p class="mb-1"><small class="text-muted">Категория:</small></p>
-                            <p class="h6">{{ product.category.name }}</p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p class="mb-1"><small class="text-muted">Артикул:</small></p>
-                            <p class="h6">{{ product.sku }}</p>
-                        </div>
-                    </div>
+                    <h1 class="h3 mb-3" itemprop="name">{{ product.name }}</h1>
 
-                    <div class="row mb-4">
-                        <div class="col-sm-6">
-                            <p class="mb-1"><small class="text-muted">Цена:</small></p>
-                            <p class="h3">${{ product.price|floatformat:2 }}</p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p class="mb-1"><small class="text-muted">Наличие:</small></p>
-                            <div class="d-flex align-items-center">
-                                <span class="h5 mb-0">{{ product.stock }} шт.</span>
-                                <span class="badge {% if product.stock > 10 %}bg-success{% elif product.stock > 0 %}bg-warning{% else %}bg-danger{% endif %} ms-2">
-                                    {% if product.stock > 10 %}
-                                        В наличии
-                                    {% elif product.stock > 0 %}
-                                        Заканчивается
-                                    {% else %}
-                                        Нет в наличии
-                                    {% endif %}
-                                </span>
+                    <div class="product-meta mb-4">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4">
+                                <div class="meta-item">
+                                    <div class="stock-status">
+                                        <span class="stock-badge {% if product.stock > 10 %}success{% elif product.stock > 0 %}warning{% else %}danger{% endif %}">
+                                            {% if product.stock > 10 %}
+                                                В наличии
+                                            {% elif product.stock > 0 %}
+                                                Заканчивается
+                                            {% else %}
+                                                Нет в наличии
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <p class="mb-1"><small class="text-muted">Описание:</small></p>
-                        <p class="mb-0">{{ product.description|linebreaks }}</p>
+                    <!-- Цена -->
+                    <div class="product-pricing mb-4" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <meta itemprop="priceCurrency" content="USD">
+                        <meta itemprop="price" content="{{ product.price }}">
+                        <div class="price-block">
+                            {% if product.old_price %}
+                                <div class="old-price text-muted text-decoration-line-through">
+                                    ${{ product.old_price|floatformat:2 }}
+                                </div>
+                            {% endif %}
+                            <div class="current-price">
+                                <span class="currency">$</span>
+                                <span class="amount">{{ product.price|floatformat:2 }}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    {% if product.specifications %}
-                        <div>
-                            <p class="mb-2"><small class="text-muted">Характеристики:</small></p>
-                            <table class="table table-sm">
-                                <tbody>
-                                    {% for key, value in product.specifications.items %}
-                                        <tr>
-                                            <td class="text-muted" style="width: 200px;">{{ key }}</td>
-                                            <td>{{ value }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                    <!-- Описание -->
+                    <div class="product-description mb-4">
+                        <h2 class="h5 description-title">Описание</h2>
+                        <div class="description-content" itemprop="description">
+                            {{ product.description|linebreaks }}
                         </div>
-                    {% endif %}
+                    </div>
+
+                    <!-- Кнопка покупки -->
+                    <div class="purchase-actions">
+                        <button id="buyButton" 
+                                class="btn btn-primary btn-lg w-100 {% if not product.stock %}disabled{% endif %}"
+                                {% if not product.stock %}disabled{% endif %}>
+                            <span class="button-content">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Купить сейчас - ${{ product.price|floatformat:2 }}
+                            </span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{% if user.role == 'admin' %}
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтверждение удаления</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Модальное окно оплаты -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Оформление заказа</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Информация о заказе -->
+                <div class="order-summary card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">Детали заказа</h6>
+                        <div class="order-item d-flex justify-content-between align-items-center mb-2">
+                            <div class="item-details">
+                                <div class="item-name">{{ product.name }}</div>
+                                <div class="item-meta text-muted small">Количество: 1</div>
+                            </div>
+                            <div class="item-price">${{ product.price|floatformat:2 }}</div>
+                        </div>
+                        <hr>
+                        <div class="order-total d-flex justify-content-between align-items-center">
+                            <strong>Итого к оплате</strong>
+                            <strong class="text-primary">${{ product.price|floatformat:2 }}</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <p>Вы действительно хотите удалить продукт "{{ product.name }}"?</p>
-                    <p class="text-danger mb-0">Это действие нельзя отменить.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <form id="deleteProductForm" action="{% url 'products:product-delete' product.id %}" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Удалить</button>
-                    </form>
-                </div>
+
+                <!-- Форма оплаты Stripe -->
+                <div id="payment-element" class="mb-4"></div>
+                
+                <!-- Сообщения об ошибках -->
+                <div id="payment-message" class="alert alert-danger d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Отмена
+                </button>
+                <button id="submit-payment" class="btn btn-primary">
+                    <span class="button-content">Оплатить</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
             </div>
         </div>
     </div>
-{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // Проверяем загрузку Stripe
+    if (typeof Stripe === 'undefined') {
+        console.error('Stripe.js не загружен!');
+        return;
+    }
+
+    try {
+        // Конфигурация Stripe
+        const stripeConfig = {
+            appearance: {
+                theme: 'stripe',
+                variables: {
+                    colorPrimary: '#0d6efd',
+                    colorBackground: '#ffffff',
+                    colorText: '#212529',
+                    colorDanger: '#dc3545',
+                    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+                    spacingUnit: '4px',
+                    borderRadius: '0.375rem'
+                }
+            }
+        };
+
+        // Состояние приложения - используем переменные вместо литерала объекта
+        const state = {};
+        state.stripe = Stripe('{{ stripe_public_key }}');
+        state.elements = null;
+        state.paymentElement = null;
+        state.modal = null;
+        state.processing = false;
+        state.productId = parseInt("{{ product.id }}", 10);
+
+        // DOM элементы
+        const elements = {
+            buyButton: document.getElementById('buyButton'),
+            submitButton: document.getElementById('submit-payment'),
+            paymentElement: document.getElementById('payment-element'),
+            messageElement: document.getElementById('payment-message'),
+            modalElement: document.getElementById('paymentModal')
+        };
+
+        // Вспомогательные функции
+        const helpers = {
+            toggleLoading: function(element, isLoading) {
+                const loader = element.querySelector('.spinner-border');
+                const content = element.querySelector('.button-content');
+                
+                element.disabled = isLoading;
+                
+                if (isLoading) {
+                    content.classList.add('d-none');
+                    loader.classList.remove('d-none');
+                } else {
+                    content.classList.remove('d-none');
+                    loader.classList.add('d-none');
+                }
+            },
+
+            showError: function(message) {
+                elements.messageElement.textContent = message;
+                elements.messageElement.classList.remove('d-none');
+            },
+
+            hideError: function() {
+                elements.messageElement.textContent = '';
+                elements.messageElement.classList.add('d-none');
+            },
+
+            createPaymentIntent: async function() {
+                const response = await fetch("/api/products/" + state.productId + "/purchase/", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_id: state.productId,
+                        quantity: 1
+                    })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Ошибка при создании платежа');
+                }
+
+                return response.json();
+            },
+
+            setupStripeElements: async function(clientSecret) {
+                state.elements = state.stripe.elements({
+                    clientSecret: clientSecret,
+                    appearance: stripeConfig.appearance
+                });
+
+                state.paymentElement = state.elements.create('payment', {
+                    layout: 'tabs',
+                    defaultValues: {
+                        billingDetails: {
+                            name: '{{ user.get_full_name|escapejs }}',
+                            email: '{{ user.email|escapejs }}'
+                        }
+                    }
+                });
+
+                elements.paymentElement.innerHTML = '';
+                await state.paymentElement.mount('#payment-element');
+            }
+        };
+
+        // Обработчики событий
+        const handlers = {
+            handlePurchase: async function(e) {
+                e.preventDefault();
+                
+                if (state.processing) return;
+                state.processing = true;
+                
+                helpers.toggleLoading(elements.buyButton, true);
+                helpers.hideError();
+                
+                try {
+                    const data = await helpers.createPaymentIntent();
+                    await helpers.setupStripeElements(data.clientSecret);
+                    state.modal.show();
+                } catch (error) {
+                    console.error('Purchase Error:', error);
+                    helpers.showError(error.message);
+                } finally {
+                    state.processing = false;
+                    helpers.toggleLoading(elements.buyButton, false);
+                }
+            },
+
+            handlePayment: async function(e) {
+                e.preventDefault();
+                
+                if (state.processing) return;
+                state.processing = true;
+                
+                helpers.toggleLoading(elements.submitButton, true);
+                helpers.hideError();
+                
+                try {
+                    const result = await state.stripe.confirmPayment({
+                        elements: state.elements,
+                        confirmParams: {
+                            return_url: window.location.origin + "/payments/success/",
+                        }
+                    });
+
+                    if (result.error) {
+                        throw result.error;
+                    }
+                } catch (error) {
+                    console.error('Payment Error:', error);
+                    helpers.showError(error.message);
+                    state.processing = false;
+                    helpers.toggleLoading(elements.submitButton, false);
+                }
+            }
+        };
+
+        // Инициализация приложения
+        function init() {
+            try {
+                state.modal = new bootstrap.Modal(elements.modalElement);
+
+                // Привязка обработчиков событий
+                if (elements.buyButton) {
+                    elements.buyButton.addEventListener('click', handlers.handlePurchase);
+                }
+                
+                if (elements.submitButton) {
+                    elements.submitButton.addEventListener('click', handlers.handlePayment);
+                }
+
+                console.log('Интеграция с Stripe инициализирована');
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
+            }
+        }
+
+        // Запуск после загрузки DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    } catch (error) {
+        console.error('Критическая ошибка:', error);
+    }
+})();
+</script>
 {% endblock %}

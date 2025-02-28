@@ -1,0 +1,104 @@
+Metadata-Version: 2.1
+Name: django-payments
+Version: 3.0.1
+Summary: Universal payment handling for Django
+Author-email: Mirumee Software <hello@mirumee.com>
+License: BSD
+Project-URL: homepage, https://github.com/jazzband/django-payments
+Project-URL: documentation, https://django-payments.readthedocs.io/
+Project-URL: changelog, https://django-payments.readthedocs.io/en/latest/changelog.html
+Project-URL: issues, https://github.com/jazzband/django-payments/issues
+Keywords: payments
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django :: 3.2
+Classifier: Framework :: Django :: 4.1
+Classifier: Framework :: Django :: 4.2
+Classifier: Framework :: Django :: 5.0
+Classifier: Framework :: Django :: 5.1
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Framework :: Django
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: Django>=3.2
+Requires-Dist: requests>=1.2.0
+Requires-Dist: django-phonenumber-field[phonenumberslite]>=5.0.0
+Provides-Extra: braintree
+Requires-Dist: braintree>=3.14.0; extra == "braintree"
+Provides-Extra: cybersource
+Requires-Dist: suds-community>=0.6; extra == "cybersource"
+Provides-Extra: dev
+Requires-Dist: coverage; extra == "dev"
+Requires-Dist: django-stubs[compatible-mypy]; extra == "dev"
+Requires-Dist: mock; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: pytest-django; extra == "dev"
+Requires-Dist: types-braintree; extra == "dev"
+Requires-Dist: types-dj-database-url; extra == "dev"
+Requires-Dist: types-requests; extra == "dev"
+Requires-Dist: types-stripe; extra == "dev"
+Requires-Dist: types-xmltodict; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx-rtd-theme; extra == "docs"
+Provides-Extra: mercadopago
+Requires-Dist: mercadopago<3.0.0,>=2.0.0; extra == "mercadopago"
+Provides-Extra: sagepay
+Requires-Dist: cryptography>=1.1.0; extra == "sagepay"
+Provides-Extra: sofort
+Requires-Dist: xmltodict>=0.9.2; extra == "sofort"
+Provides-Extra: stripe
+Requires-Dist: stripe>=2.6.0; extra == "stripe"
+
+django-payments
+===============
+
+.. image:: https://jazzband.co/static/img/badge.svg
+  :target: https://jazzband.co/
+  :alt: Jazzband
+
+.. image:: https://github.com/jazzband/django-payments/workflows/Test/badge.svg
+   :target: https://github.com/jazzband/django-payments/actions
+   :alt: GitHub Actions
+
+.. image:: https://codecov.io/gh/jazzband/django-payments/branch/main/graph/badge.svg
+  :target: https://codecov.io/gh/jazzband/django-payments
+  :alt: Build coverage
+
+.. image:: https://readthedocs.org/projects/django-payments/badge/?version=latest
+  :target: http://django-payments.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
+.. image:: https://img.shields.io/pypi/v/django-payments.svg
+  :target: https://pypi.python.org/pypi/django-payments
+  :alt: version on pypi
+
+.. image:: https://img.shields.io/pypi/dm/django-payments.svg
+  :target: https://pypi.python.org/pypi/django-payments
+  :alt: downloads
+
+.. image:: https://img.shields.io/pypi/l/django-payments.svg
+  :target: https://github.com/jazzband/django-payments/blob/main/LICENSE
+  :alt: licence
+
+Universal payment handling for Django
+
+Documentation: https://django-payments.readthedocs.org/
+
+
+Additional payment providers
+----------------------------
+
+* `BNL POSitivity (BNP Paribas) <https://github.com/esistgut/django-payments-bnlepos>`_
+* `Redsys (formerly known as Sermepa) <https://github.com/ajostergaard/django-payments-redsys>`_
+* `Razorpay <https://github.com/NyanKiyoshi/django-payments-razorpay/>`_
+* `PayU <https://github.com/PetrDlouhy/django-payments-payu/>`_

@@ -3,7 +3,9 @@ from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
-
+import stripe
+from django.conf import settings
+from decimal import Decimal
 from sales.models import SalesOrder, SalesOrderItem
 from products.models import Product
 from users.models import User
@@ -139,3 +141,32 @@ class AnalyticsService:
             'top_products': AnalyticsService.get_product_performance(date_from, date_to),
             'top_sellers': AnalyticsService.get_top_sellers(date_from, date_to)
         }
+    
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+class PaymentService:
+    @staticmethod
+    def create_payment_intent(product, user):
+        try:
+            intent = stripe.PaymentIntent.create(
+                amount=int(product.price * Decimal('100')),  
+                currency='usd',
+                metadata={
+                    'product_id': product.id,
+                    'user_id': user.id
+                }
+            )
+            return intent
+        except stripe.error.StripeError as e:
+            raise ValueError(f"Ошибка при создании платежа: {str(e)}")
+
+    @staticmethod
+    def process_webhook(payload, sig_header):
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+            )
+            return event
+        except Exception as e:
+            raise ValueError(f"Ошибка обработки webhook: {str(e)}")

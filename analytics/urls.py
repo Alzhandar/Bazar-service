@@ -4,7 +4,9 @@ from .views import (
     AnalyticsViewSet,
     AnalyticsReportListView,
     AnalyticsReportDetailView,
-    AnalyticsDashboardView
+    AnalyticsDashboardView,
+    ProductPurchaseView,
+    StripeWebhookView
 )
 
 app_name = 'analytics'
@@ -32,6 +34,8 @@ web_urls = [
     path('', AnalyticsDashboardView.as_view(), name='dashboard'),
     path('reports/', AnalyticsReportListView.as_view(), name='report-list'),
     path('reports/<int:pk>/', AnalyticsReportDetailView.as_view(), name='report-detail'),
+    path('webhook/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
+    path('api/products/<int:pk>/purchase/', ProductPurchaseView.as_view(), name='product-purchase'),
 ]
 
 urlpatterns = web_urls + api_urls

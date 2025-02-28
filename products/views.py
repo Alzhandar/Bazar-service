@@ -113,6 +113,9 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
     success_url = reverse_lazy('products:product-list')
+    template_name = 'products/product_detail.html'
+    context_object_name = 'product'
+
     
     def test_func(self):
         return self.request.user.role == 'admin'
@@ -123,3 +126,8 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Продукт успешно удален')
         return super().delete(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stripe_public_key'] = settings.STRIPE_PUBLIC_KEY
+        return context
