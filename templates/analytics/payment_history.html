@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}История платежей | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/analytics/payment.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3">История платежей</h1>
+            <p class="text-muted">Все ваши транзакции и покупки</p>
+        </div>
+    </div>
+    
+    {% if payments %}
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover payment-history-table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Дата</th>
+                                <th scope="col">Продукт</th>
+                                <th scope="col">Сумма</th>
+                                <th scope="col">Статус</th>
+                                <th scope="col">Метод оплаты</th>
+                                <th scope="col">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+                                    <td>
+                                        {% if payment.product %}
+                                            <a href="{% url 'products:product-detail' payment.product.id %}" class="product-link">
+                                                {{ payment.product.name }}
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted">Продукт удален</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold">{{ payment.amount }} {{ payment.currency }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="payment-status status-{{ payment.status }}">
+                                            {% if payment.status == 'completed' %}
+                                                <i class="fas fa-check-circle me-1"></i> Оплачено
+                                            {% elif payment.status == 'pending' %}
+                                                <i class="fas fa-clock me-1"></i> Ожидает оплаты
+                                            {% elif payment.status == 'failed' %}
+                                                <i class="fas fa-times-circle me-1"></i> Ошибка
+                                            {% elif payment.status == 'refunded' %}
+                                                <i class="fas fa-undo me-1"></i> Возвращено
+                                            {% elif payment.status == 'cancelled' %}
+                                                <i class="fas fa-ban me-1"></i> Отменено
+                                            {% else %}
+                                                {{ payment.get_status_display }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_method %}
+                                            {% if payment.payment_method == 'card' %}
+                                                <i class="far fa-credit-card me-1"></i> Карта
+                                            {% else %}
+                                                {{ payment.payment_method }}
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.status == 'completed' and payment.product %}
+                                            <a href="{% url 'products:product-detail' payment.product.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download"></i> Загрузить
+                                            </a>
+                                        {% elif payment.status == 'pending' %}
+                                            <button class="btn btn-sm btn-outline-warning" disabled>
+                                                <i class="fas fa-spinner fa-spin"></i> В обработке
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                Недоступно
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                    <h3 class="h5">У вас пока нет платежей</h3>
+                    <p class="text-muted mb-4">Здесь будут отображаться все ваши покупки</p>
+                    <a href="{% url 'products:product-list' %}" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag me-2"></i> Перейти к каталогу
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

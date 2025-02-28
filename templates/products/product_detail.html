@@ -171,17 +171,15 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Добавляем необходимую конфигурацию для Stripe -->
 <script>
-    var paymentConfig = {
-        stripePublicKey: "{{ stripe_public_key|escapejs }}",
-        productId: {{ product.id|default:"null" }},
-        csrfToken: "{{ csrf_token|escapejs }}",
-        returnUrl: "{{ request.scheme|default:'https' }}://{{ request.get_host }}/payments/success/",
-        userName: "{{ user.get_full_name|default:user.username|escapejs }}",
-        userEmail: "{{ user.email|default:''|escapejs }}"
+    window.paymentConfig = {
+        productId: document.getElementById('product-id').value, 
+        stripePublicKey: 'pk_test_51QxPyVQOt5w1YrFbktoggbkKqy1glY9FkylyT5TRDwkPCT63arqVX1pT8BCtrx71A1QdWet0xSyEi8hSY9ZWpMz700E4AwYVpL', 
+        csrfToken: document.querySelector('[name=csrfmiddlewaretoken]').value, 
+        returnUrl: '/payment-success?product_id=' + productId 
     };
-    
-    window.paymentConfig = paymentConfig;
 </script>
+
 <script src="{% static 'js/payment.js' %}"></script>
 {% endblock %}

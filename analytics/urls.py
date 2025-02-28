@@ -6,7 +6,9 @@ from .views import (
     AnalyticsReportDetailView,
     AnalyticsDashboardView,
     ProductPurchaseView,
-    StripeWebhookView
+    StripeWebhookView,
+    PaymentSuccessView,
+    PaymentHistoryView
 )
 
 app_name = 'analytics'
@@ -28,14 +30,32 @@ api_urls = [
     path('generate-reports/',
          AnalyticsViewSet.as_view({'post': 'generate_reports'}),
          name='generate-reports'),
+    path('products/<int:pk>/purchase/', 
+         ProductPurchaseView.as_view(), 
+         name='product-purchase'),
 ]
 
-web_urls = [
-    path('', AnalyticsDashboardView.as_view(), name='dashboard'),
-    path('reports/', AnalyticsReportListView.as_view(), name='report-list'),
-    path('reports/<int:pk>/', AnalyticsReportDetailView.as_view(), name='report-detail'),
-    path('webhook/stripe/', StripeWebhookView.as_view(), name='stripe-webhook'),
-    path('api/products/<int:pk>/purchase/', ProductPurchaseView.as_view(), name='product-purchase'),
+urlpatterns = [
+    path('dashboard/', 
+         AnalyticsDashboardView.as_view(), 
+         name='dashboard'),
+    path('reports/', 
+         AnalyticsReportListView.as_view(), 
+         name='report-list'),
+    path('reports/<int:pk>/', 
+         AnalyticsReportDetailView.as_view(), 
+         name='report-detail'),
+    
+    path('payment/success/', 
+         PaymentSuccessView.as_view(), 
+         name='payment-success'),
+    path('payment/history/', 
+         PaymentHistoryView.as_view(), 
+         name='payment-history'),
+    
+    path('webhooks/stripe/', 
+         StripeWebhookView.as_view(), 
+         name='stripe-webhook'),
+    
+    path('', include(api_urls)),
 ]
-
-urlpatterns = web_urls + api_urls

@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.conf import settings  
 
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
@@ -66,20 +67,26 @@ class ProductListView(LoginRequiredMixin, ListView):
         context['selected_category'] = self.request.GET.get('category', '')
         return context
 
-from django.conf import settings  
-
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'products/product_detail.html'
     context_object_name = 'product'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['related_products'] = Product.objects.filter(
-            category=self.object.category
-        ).exclude(id=self.object.id)[:4]
-        context['stripe_public_key'] = settings.STRIPE_PUBLIC_KEY  
+        
+        context['stripe_public_key'] = settings.STRIPE_PUBLIC_KEY
+        
+        product = self.get_object()
+        related_products = Product.objects.filter(
+            category=product.category
+        ).exclude(
+            id=product.id
+        ).order_by('-created_at')[:3]
+        context['related_products'] = related_products
+        
         return context
+
 
 class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Product

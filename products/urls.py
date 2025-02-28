@@ -15,7 +15,7 @@ app_name = 'products'
 
 api_router = DefaultRouter()
 api_router.register('categories', CategoryViewSet, basename='category-api')
-api_router.register('products', ProductViewSet, basename='product-api')
+api_router.register('', ProductViewSet, basename='product-api')
 
 web_urlpatterns = [
     path('', ProductListView.as_view(), name='product-list'),
@@ -27,5 +27,5 @@ web_urlpatterns = [
 ]
 
 urlpatterns = web_urlpatterns + [
-    path('api/', include((api_router.urls, 'products-api'))),
+    path('', include((api_router.urls, 'products-api'))),
 ]

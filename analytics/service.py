@@ -9,6 +9,16 @@ from decimal import Decimal
 from sales.models import SalesOrder, SalesOrderItem
 from products.models import Product
 from users.models import User
+import stripe
+import logging
+import json
+from decimal import Decimal
+from django.conf import settings
+from django.utils import timezone
+from django.db import transaction
+from .models import Payment
+from products.models import Product
+
 
 class AnalyticsService:
     @staticmethod
@@ -141,32 +151,210 @@ class AnalyticsService:
             'top_products': AnalyticsService.get_product_performance(date_from, date_to),
             'top_sellers': AnalyticsService.get_top_sellers(date_from, date_to)
         }
-    
 
+
+
+# Настройка логгера
+logger = logging.getLogger(__name__)
+
+# Инициализация Stripe API с использованием ключа из настроек
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+
 class PaymentService:
+    """
+    Сервисный класс для работы с платежами через Stripe
+    """
+    
     @staticmethod
-    def create_payment_intent(product, user):
+    def create_payment_intent(user, product_id):
+        """
+        Создаёт Payment Intent в Stripe и соответствующую запись Payment в БД
+        
+        Args:
+            user: Объект пользователя
+            product_id: ID продукта для покупки
+            
+        Returns:
+            tuple: (payment_object, client_secret)
+        """
         try:
-            intent = stripe.PaymentIntent.create(
-                amount=int(product.price * Decimal('100')),  
-                currency='usd',
-                metadata={
-                    'product_id': product.id,
-                    'user_id': user.id
-                }
+            # Получаем продукт
+            product = Product.objects.get(id=product_id)
+            
+            # Проверяем, есть ли товар в наличии
+            if product.stock <= 0:
+                raise ValueError("Товар отсутствует в наличии")
+            
+            amount_in_cents = int(product.price * 100)  # Конвертируем в центы для Stripe
+            
+            # Создаем метаданные для платежа
+            metadata = {
+                'product_id': product_id,
+                'user_id': user.id,
+                'user_email': user.email,
+                'product_name': product.name
+            }
+            
+            # Создаем Payment Intent в Stripe
+            payment_intent = stripe.PaymentIntent.create(
+                amount=amount_in_cents,
+                currency="usd",  # Валюта должна соответствовать настройкам вашего аккаунта Stripe
+                metadata=metadata,
+                description=f"Покупка: {product.name}",
+                automatic_payment_methods={"enabled": True},
+                receipt_email=user.email
             )
-            return intent
+            
+            # Создаем запись Payment в БД
+            with transaction.atomic():
+                payment = Payment.objects.create(
+                    user=user,
+                    product=product,
+                    amount=product.price,
+                    currency='USD',
+                    payment_intent_id=payment_intent.id,
+                    status='pending',
+                )
+            
+            return payment, payment_intent.client_secret
+            
+        except Product.DoesNotExist:
+            logger.error(f"Продукт с ID {product_id} не найден")
+            raise ValueError(f"Продукт с ID {product_id} не найден")
+            
         except stripe.error.StripeError as e:
-            raise ValueError(f"Ошибка при создании платежа: {str(e)}")
+            logger.error(f"Ошибка Stripe при создании PaymentIntent: {str(e)}")
+            raise ValueError(f"Ошибка платежной системы: {str(e)}")
+            
+        except Exception as e:
+            logger.error(f"Непредвиденная ошибка при создании PaymentIntent: {str(e)}")
+            raise ValueError("Произошла ошибка при оформлении платежа")
 
     @staticmethod
-    def process_webhook(payload, sig_header):
+    def handle_payment_webhook(payload, sig_header):
+        """
+        Обрабатывает webhook-события от Stripe
+        
+        Args:
+            payload: Тело запроса webhook
+            sig_header: Заголовок подписи для верификации
+            
+        Returns:
+            dict: Результат обработки события
+        """
+        # Проверяем сигнатуру события от Stripe
         try:
             event = stripe.Webhook.construct_event(
                 payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
             )
-            return event
+        except ValueError as e:
+            # Недействительная полезная нагрузка
+            logger.error(f"Недействительная полезная нагрузка: {str(e)}")
+            return {'status': 'error', 'message': 'Invalid payload'}
+        except stripe.error.SignatureVerificationError as e:
+            # Недействительная сигнатура
+            logger.error(f"Недействительная сигнатура: {str(e)}")
+            return {'status': 'error', 'message': 'Invalid signature'}
+        
+        # Получаем тип события
+        event_type = event['type']
+        
+        # Обрабатываем разные типы событий
+        if event_type == 'payment_intent.succeeded':
+            return PaymentService._handle_payment_intent_succeeded(event)
+            
+        elif event_type == 'payment_intent.payment_failed':
+            return PaymentService._handle_payment_intent_failed(event)
+            
+        # Другие типы событий можно обрабатывать аналогично
+        
+        return {'status': 'success', 'message': f'Unhandled event type: {event_type}'}
+
+    @staticmethod
+    def _handle_payment_intent_succeeded(event):
+        """
+        Обрабатывает событие успешного платежа
+        """
+        payment_intent = event.data.object
+        payment_intent_id = payment_intent.id
+        
+        try:
+            with transaction.atomic():
+                payment = Payment.objects.get(payment_intent_id=payment_intent_id)
+                
+                # Обновляем запись платежа
+                payment.status = 'completed'
+                payment.completed_at = timezone.now()
+                payment.payment_method = payment_intent.get('payment_method_types', ['card'])[0]
+                
+                # Сохраняем дополнительные данные из Stripe
+                try:
+                    if hasattr(payment_intent, 'charges') and payment_intent.charges.data:
+                        charge = payment_intent.charges.data[0]
+                        if hasattr(charge, 'billing_details'):
+                            payment.billing_details = json.loads(json.dumps(charge.billing_details))
+                except Exception as e:
+                    logger.warning(f"Не удалось получить details из платежа: {str(e)}")
+                
+                payment.save()
+                
+                # Уменьшаем остаток товара на 1
+                product = payment.product
+                if product and product.stock > 0:
+                    product.stock -= 1
+                    product.save()
+                
+                logger.info(f"Платеж {payment_intent_id} успешно обработан")
+                
+                return {
+                    'status': 'success', 
+                    'message': 'Payment processed successfully', 
+                    'payment_id': payment.id
+                }
+                
+        except Payment.DoesNotExist:
+            logger.error(f"Платеж с ID {payment_intent_id} не найден в базе данных")
+            return {'status': 'error', 'message': 'Payment not found in database'}
+            
         except Exception as e:
-            raise ValueError(f"Ошибка обработки webhook: {str(e)}")
+            logger.error(f"Ошибка при обработке успешного платежа: {str(e)}")
+            return {'status': 'error', 'message': str(e)}
+    
+    @staticmethod
+    def _handle_payment_intent_failed(event):
+        """
+        Обрабатывает событие неуспешного платежа
+        """
+        payment_intent = event.data.object
+        payment_intent_id = payment_intent.id
+        
+        try:
+            payment = Payment.objects.get(payment_intent_id=payment_intent_id)
+            
+            # Получаем сообщение об ошибке
+            last_error = payment_intent.get('last_payment_error', {})
+            error_message = last_error.get('message', 'Unknown payment failure reason')
+            
+            # Обновляем запись платежа
+            payment.status = 'failed'
+            payment.error_message = error_message
+            payment.save()
+            
+            logger.info(f"Платеж {payment_intent_id} отмечен как неудачный: {error_message}")
+            
+            return {
+                'status': 'success', 
+                'message': 'Payment failure recorded', 
+                'payment_id': payment.id
+            }
+            
+        except Payment.DoesNotExist:
+            logger.error(f"Платеж с ID {payment_intent_id} не найден в базе данных")
+            return {'status': 'error', 'message': 'Payment not found in database'}
+            
+        except Exception as e:
+            logger.error(f"Ошибка при обработке неудачного платежа: {str(e)}")
+            return {'status': 'error', 'message': str(e)}
+
+

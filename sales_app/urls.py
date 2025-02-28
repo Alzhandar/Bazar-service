@@ -31,13 +31,6 @@ urlpatterns = [
     path('api/docs/redoc/', schema_view.with_ui('redoc', cache_timeout=0), 
          name='schema-redoc'),
     
-    path('api/', include([
-        path('users/', include(('users.urls', 'users'), namespace='users-api')),
-        path('products/', include(('products.urls', 'products'), namespace='products-api')),
-        path('trading/', include(('trading.urls', 'trading'), namespace='trading-api')),
-        path('sales/', include(('sales.urls', 'sales'), namespace='sales-api')),
-        path('analytics/', include(('analytics.urls', 'analytics'), namespace='analytics-api')),
-    ])),
     
     path('', include('users.urls')),
     path('products/', include('products.urls', namespace='products')),  

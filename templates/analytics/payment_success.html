@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Платеж успешно выполнен | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/analytics/payment.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card payment-success-card">
+                <div class="card-body text-center p-5">
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle fa-5x text-success"></i>
+                    </div>
+
+                    <h1 class="card-title h3 mb-4">Платеж успешно выполнен!</h1>
+
+                    {% if product %}
+                        <div class="product-info mb-4">
+                            <div class="product-name mb-2">{{ product.name }}</div>
+                            <div class="product-price">{{ product.price }} $</div>
+                        </div>
+
+                        {% if payment %}
+                            <div class="payment-info mb-4">
+                                <div class="order-id small text-muted mb-2">
+                                    Номер заказа: {{ payment.payment_intent_id|slice:"-8:" }}
+                                </div>
+                                <div class="payment-date small text-muted">
+                                    Дата платежа: {{ payment.completed_at|date:"d.m.Y H:i" }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="product-access mt-4 mb-5">
+                            <p>Вы можете загрузить приобретенный продукт или получить к нему доступ по кнопке ниже.</p>
+                            <a href="{% url 'products:product-detail' product.id %}" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i> Получить доступ
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="generic-success mb-4">
+                            <p>Ваш платеж был успешно обработан. Спасибо за покупку!</p>
+                            <p class="text-muted">Мы отправили детали вашего заказа на вашу электронную почту.</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Дополнительные действия -->
+                    <div class="additional-actions mt-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'analytics:payment-history' %}" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-history me-2"></i> История платежей
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <a href="{% url 'products:product-list' %}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-shopping-bag me-2"></i> Продолжить покупки
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Рекомендации других продуктов -->
+            {% if related_products %}
+                <div class="related-products mt-5">
+                    <h3 class="h4 mb-4">Вам также может понравиться</h3>
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        {% for related_product in related_products %}
+                            <div class="col">
+                                <div class="card h-100">
+                                    {% if related_product.image %}
+                                        <img src="{{ related_product.image.url }}" class="card-img-top" alt="{{ related_product.name }}">
+                                    {% else %}
+                                        <div class="placeholder-image"></div>
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ related_product.name }}</h5>
+                                        <p class="card-text text-primary fw-bold">${{ related_product.price }}</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="{% url 'products:product-detail' related_product.id %}" class="btn btn-sm btn-outline-primary w-100">Подробнее</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
