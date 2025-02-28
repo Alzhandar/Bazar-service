@@ -121,8 +121,8 @@ class SalesOrderDetailView(LoginRequiredMixin, DetailView):
                 'order': self.object,
                 'items': items,
                 'total_quantity': total_quantity,
-                'company_name': 'Your Company Name',
-                'company_address': 'Your Company Address',
+                'company_name': 'Trading Platform',
+                'company_address': 'Almaty city, Kazakhstan',
                 'company_inn': '1234567890',
                 'company_ogrn': '1234567890123',
                 'current_date': timezone.now(),
@@ -220,8 +220,8 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
                 'invoice': invoice,
                 'order': invoice.sales_order,
                 'items': invoice.sales_order.items.all(),
-                'company_name': 'Your Company Name',
-                'company_address': 'Your Company Address',
+                'company_name': 'Trading Platform',
+                'company_address': 'Almaty city, Kazakhstan',
             }
             pdf = render_to_pdf('sales/invoice_pdf.html', context)
             if pdf:
