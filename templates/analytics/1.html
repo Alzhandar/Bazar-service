@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Счета | Trading Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/header.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+    <link rel="stylesheet" href="/static/css/order-list.css">
+    <link rel="stylesheet" href="/static/css/forms.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="/static/css/product-card.css">
+
+    <script src="/static/js/header.js"></script>
+    <script src="/static/js/sidebar.js"></script>
+    
+    
+</head>
+<body class="layout-fixed" data-theme="light">
+    <header class="header">
+    <div class="header-content">
+        <button type="button" class="mobile-menu-toggle d-lg-none">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-form">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" class="search-input" placeholder="Поиск...">
+        </div>
+
+        <button type="button" class="search-toggle d-lg-none">
+            <i class="fas fa-search"></i>
+        </button>
+
+        <div class="nav-menu">
+            <div class="notifications-dropdown">
+                <button class="nav-link" type="button">
+                    <i class="fas fa-bell"></i>
+                    
+                </button>
+                
+                <div class="notifications-menu">
+                    <div class="notifications-header">
+                        <h6 class="mb-0">Уведомления</h6>
+                        <button class="btn btn-link btn-sm">Отметить все как прочитанные</button>
+                    </div>
+                    
+                    <div class="notifications-body">
+                        
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">Нет новых уведомлений</p>
+                            </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile dropdown">
+                <button class="profile-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    
+                        <img src="https://avatariya.fra1.digitaloceanspaces.com/profiles/t0srg8.jpg" alt="Tony Stark" class="user-avatar">
+                    
+                    <div class="user-info">
+                        <div class="user-name">Tony Stark</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                    <i class="fas fa-chevron-down ms-2"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/profile/">
+                            <i class="fas fa-user me-2"></i>
+                            Мой профиль
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/profile/edit/">
+                            <i class="fas fa-cog me-2"></i>
+                            Настройки
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="/logout/">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Выйти
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <button id="themeToggle" class="nav-link" type="button">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <div class="mobile-nav">
+            <div class="mobile-nav-actions">
+                <button class="mobile-nav-btn" type="button">
+                    <i class="fas fa-bell"></i>
+                    
+                </button>
+                <button class="mobile-nav-btn" type="button">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="mobile-nav-btn" id="mobileThemeToggle" type="button">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-search">
+        <div class="mobile-search-header">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" class="mobile-search-input" placeholder="Поиск...">
+            <button type="button" class="mobile-search-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="mobile-overlay"></div>
+</header>
+
+    <div class="wrapper">
+        <button type="button" class="sidebar-toggle-mobile d-lg-none" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+    
+        <div class="sidebar-overlay"></div>
+    
+        
+            
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <img src="/static/images/logo.svg" alt="Trading Platform" class="brand-logo">
+        <span class="brand-text">Trading Platform</span>
+    </div>
+
+    <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <h6 class="nav-header">Основное меню</h6>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/products/" 
+                       class="nav-link ">
+                        <span class="nav-icon">
+                            <i class="fas fa-box"></i>
+                        </span>
+                        <span class="nav-text">Продукты</span>
+                        
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/sales/orders/" 
+                       class="nav-link active">
+                        <span class="nav-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </span>
+                        <span class="nav-text">Заказы</span>
+                        
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        
+            <div class="nav-section">
+                <h6 class="nav-header">Администрирование</h6>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/admin/" class="nav-link">
+                            <span class="nav-icon">
+                                <i class="fas fa-cog"></i>
+                            </span>
+                            <span class="nav-text">Настройки</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/users/" class="nav-link">
+                            <span class="nav-icon">
+                                <i class="fas fa-users"></i>
+                            </span>
+                            <span class="nav-text">Пользователи</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        
+    </nav>
+    <div class="sidebar-footer">
+        <form method="post" action="/logout/" class="d-inline w-100">
+            <input type="hidden" name="csrfmiddlewaretoken" value="C7925eR1T8CvrDDr2t6BNmxEKEUvWeqJIu0ENOMEC8nIjG4GW8utYTL6osEXv7qo">
+            <button type="submit" class="nav-link border-0 bg-transparent w-100 d-flex align-items-center">
+                <span class="nav-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </span>
+                <span class="nav-text">Выйти</span>
+            </button>
+        </form>
+    </div>
+</aside>
+        
+    
+        <main class="main-content">
+            
+    
+            <div class="content">
+                
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">Счета</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/">Главная</a></li>
+                    <li class="breadcrumb-item active">Счета</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Поиск по номеру..."
+                               value="">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="pending" >
+                            Ожидает оплаты
+                        </option>
+                        <option value="paid" >
+                            Оплачен
+                        </option>
+                        <option value="overdue" >
+                            Просрочен
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <input type="date" name="date_from" class="form-control" 
+                           value=""
+                           placeholder="Дата с">
+                </div>
+                
+                <div class="col-md-3">
+                    <input type="date" name="date_to" class="form-control" 
+                           value=""
+                           placeholder="Дата по">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Номер счета</th>
+                        <th>Клиент</th>
+                        <th>Сумма</th>
+                        <th>Дата выставления</th>
+                        <th>Срок оплаты</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <p class="text-muted mb-0">Счета не найдены</p>
+                            </td>
+                        </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+</div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/sidebar.js"></script>
+    
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        });
+    </script>
+
+    
+<script>
+document.querySelectorAll('select[name], input[type="date"]').forEach(element => {
+    element.addEventListener('change', () => {
+        element.closest('form').submit();
+    });
+});
+</script>
+
+</body>
+</html>

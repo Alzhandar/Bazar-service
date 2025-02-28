@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from io import BytesIO
-
+from django.utils import timezone
 from .models import SalesOrder, SalesOrderItem, Invoice
 from .serializers import SalesOrderSerializer, InvoiceSerializer
 from users.permissions import IsSales, IsAdmin
@@ -110,6 +110,35 @@ class SalesOrderDetailView(LoginRequiredMixin, DetailView):
         context['items'] = self.object.items.all()
         return context
     
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        if 'download_receipt' in request.GET:
+            items = self.object.items.all()
+            total_quantity = sum(item.quantity for item in items)
+            
+            context = {
+                'order': self.object,
+                'items': items,
+                'total_quantity': total_quantity,
+                'company_name': 'Your Company Name',
+                'company_address': 'Your Company Address',
+                'company_inn': '1234567890',
+                'company_ogrn': '1234567890123',
+                'current_date': timezone.now(),
+            }
+            
+            pdf = render_to_pdf('sales/receipt_pdf.html', context)
+            if pdf:
+                response = pdf
+                filename = f"receipt_order_{self.object.id}.pdf"
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+            return HttpResponse("Ошибка при генерации PDF", status=500)
+            
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+    
 class SalesOrderCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = SalesOrder
     template_name = 'sales/order_form.html'
@@ -126,8 +155,10 @@ class SalesOrderCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             context['formset'] = OrderItemFormSet(self.request.POST)
         else:
             context['formset'] = OrderItemFormSet()
-        
+    
         return context
+    
+
 
     def test_func(self):
         return self.request.user.role in ['admin', 'sales']
@@ -222,3 +253,11 @@ class SalesOrderEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             message=f'Заказ отредактирован пользователем {self.request.user.get_full_name()}'
         )
         return response
+    
+def render_to_pdf(template_src, context_dict={}):
+    template = render_to_string(template_src, context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(template.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None

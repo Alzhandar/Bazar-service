@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Кассовый чек №{{ order.id }}</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVuSans';
+            src: url('https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf');
+        }
+        
+        @page {
+            size: 80mm 297mm;
+            margin: 5mm;
+        }
+        body {
+            font-family: 'DejaVuSans', 'Arial Unicode MS', 'Arial', sans-serif;
+            font-size: 10pt;
+            line-height: 1.3;
+        }
+        .receipt {
+            width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 10pt;
+        }
+        .company-name {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 3pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .company-info {
+            font-size: 8pt;
+            margin-bottom: 5pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .title {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 10pt 0;
+            text-align: center;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .order-info {
+            margin-bottom: 10pt;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 5pt;
+        }
+        .order-info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3pt;
+            font-size: 9pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10pt;
+        }
+        .items-table th {
+            font-size: 9pt;
+            text-align: left;
+            border-bottom: 1px solid #000;
+            padding: 3pt 0;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .items-table td {
+            padding: 5pt 0;
+            font-size: 9pt;
+            border-bottom: 1px dotted #ccc;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .totals {
+            margin-top: 10pt;
+            border-top: 1px dashed #000;
+            padding-top: 5pt;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-top: 5pt;
+        }
+        .footer {
+            margin-top: 15pt;
+            text-align: center;
+            font-size: 8pt;
+            border-top: 1px dashed #000;
+            padding-top: 10pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .payment-info {
+            margin: 10pt 0;
+            font-size: 9pt;
+            font-family: 'DejaVuSans', 'Arial Unicode MS', sans-serif;
+        }
+        .barcode {
+            text-align: center;
+            margin: 15pt 0;
+            font-family: 'Courier', monospace;
+            letter-spacing: 3pt;
+        }
+        .qr {
+            text-align: center;
+            margin-bottom: 10pt;
+        }
+        .qr-placeholder {
+            display: inline-block;
+            width: 80pt;
+            height: 80pt;
+            border: 1px solid #000;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <div class="company-name">{{ company_name|default:"Trading Platform" }}</div>
+            <div class="company-info">{{ company_address|default:"Almaty city" }}</div>
+            <div class="company-info">ИНН: {{ company_inn|default:"1234567890" }} | ОГРН: {{ company_ogrn|default:"1234567890123" }}</div>
+        </div>
+        
+        <div class="title">КАССОВЫЙ ЧЕК № {{ order.id }}</div>
+        
+        <div class="order-info">
+            <div class="order-info-item">
+                <span>Дата и время:</span>
+                <span>{{ order.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            <div class="order-info-item">
+                <span>Менеджер:</span>
+                <span>{{ order.sales_rep.get_full_name }}</span>
+            </div>
+            <div class="order-info-item">
+                <span>Клиент:</span>
+                <span>{{ order.customer.get_full_name }}</span>
+            </div>
+            <div class="order-info-item">
+                <span>Статус:</span>
+                <span>{{ order.get_status_display }}</span>
+            </div>
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%">Наименование</th>
+                    <th style="width: 20%">Кол-во</th>
+                    <th style="width: 20%">Цена</th>
+                    <th style="width: 20%">Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }} шт.</td>
+                    <td>${{ item.price|floatformat:2 }}</td>
+                    <td>${{ item.total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="totals">
+            <div class="total-row">
+                <span>Итого товаров:</span>
+                <span>{{ items|length }} шт.</span>
+            </div>
+            <div class="total-row">
+                <span>Итого количество:</span>
+                <span>{{ total_quantity }} шт.</span>
+            </div>
+            {% if order.discount %}
+            <div class="total-row">
+                <span>Скидка:</span>
+                <span>${{ order.discount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+            <div class="total-row grand-total">
+                <span>ИТОГО К ОПЛАТЕ:</span>
+                <span>${{ order.total_amount|floatformat:2 }}</span>
+            </div>
+        </div>
+        
+        <div class="payment-info">
+            <div>СПОСОБ ОПЛАТЫ: {% if order.payment_method %}{{ order.payment_method|upper }}{% else %}НАЛИЧНЫЕ{% endif %}</div>
+            <div>СУММА ОПЛАТЫ: ${{ order.total_amount|floatformat:2 }}</div>
+        </div>
+        
+        <div class="barcode">
+            *{{ order.id|stringformat:"010d" }}*
+        </div>
+        
+        <div class="qr">
+            <div class="qr-placeholder"></div>
+        </div>
+        
+        <div class="footer">
+            <div>Спасибо за покупку!</div>
+            <div>{{ current_date|date:"d.m.Y H:i" }}</div>
+            <div>СайтКомпании.рф</div>
+        </div>
+    </div>
+</body>
+</html>
