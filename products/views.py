@@ -66,6 +66,8 @@ class ProductListView(LoginRequiredMixin, ListView):
         context['selected_category'] = self.request.GET.get('category', '')
         return context
 
+from django.conf import settings  
+
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'products/product_detail.html'
@@ -76,6 +78,7 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         context['related_products'] = Product.objects.filter(
             category=self.object.category
         ).exclude(id=self.object.id)[:4]
+        context['stripe_public_key'] = settings.STRIPE_PUBLIC_KEY  
         return context
 
 class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
